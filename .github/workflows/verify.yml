@@ -43,3 +43,13 @@ jobs:
           psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f ../jobba-freelance-backend/database/seed.sql
       - run: npm run test:db
       - run: npm run build
+
+  escrow:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: jobba-freelance-backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p freelance_escrow --lib

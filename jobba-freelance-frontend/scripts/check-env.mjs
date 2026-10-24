@@ -1,3 +1,7 @@
+import nextEnv from "@next/env";
+
+nextEnv.loadEnvConfig(process.cwd());
+
 const modes = new Set(["shell", "wallet", "server", "deploy"]);
 const mode = process.argv[2] ?? "shell";
 

@@ -17,5 +17,3 @@ test-results/
 .env.*
 .env*.local
 !.env.example
-# Documentation / Markdown
-*.md
