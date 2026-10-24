@@ -65,7 +65,7 @@ function Flow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
       {step === 2 ? (
         <section aria-labelledby="c2">
           <span className="eyebrow">Step 3 of 3</span>
-          <h2 id="c2">How will you use Jobba?</h2>
+          <h2 id="c2">Set up your profile</h2>
           <p className="lead">Choose your role and complete your profile. Your progress is saved automatically.</p>
           <OnboardingWizard />
           <p className="fine"><button className="textButton" type="button" onClick={() => void auth.signOut()}>Sign out</button></p>

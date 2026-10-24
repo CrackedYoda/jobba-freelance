@@ -4,6 +4,7 @@ import { missingRequirements, type SaveOnboardingInput } from "@/features/profil
 import { getDatabase } from "@/server/db/client";
 import { AppError } from "@/server/db/errors";
 import { checkSignupBalance } from "@/server/onboarding/balance";
+import { resumeStatus } from "@/server/onboarding/resume";
 import type { Actor } from "@/server/repositories/profiles";
 
 type Row = Record<string, unknown>;
@@ -36,7 +37,7 @@ export async function readOnboarding(profileId: string) {
     primaryRole: (p.primary_role as string | null) ?? null, isAdmin: Boolean(p.is_admin), walletVerifiedAt: p.wallet_verified_at, avatarUrl: (p.avatar_url as string | null) ?? null,
     availability: String(p.availability), portfolio: p.portfolio as { title: string; url: string }[], companyWebsite: (p.company_website as string | null) ?? null,
     balance: p.balance_checked_at ? { lamports: String(p.balance_lamports), usdCents: String(p.balance_usd_cents), checkedAt: p.balance_checked_at } : null,
-    ...draft, missing: missingRequirements(draft), availableSkills: skills,
+    ...draft, missing: missingRequirements(draft), availableSkills: skills, resume: await resumeStatus(profileId),
   };
 }
 

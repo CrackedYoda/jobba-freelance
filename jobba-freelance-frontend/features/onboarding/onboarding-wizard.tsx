@@ -5,6 +5,8 @@ import { BadgeCheck, Briefcase, Camera, Check, CircleAlert, Loader2, Plus, Refre
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
+import { mergeResume, type ResumeDraft } from "@/features/onboarding/merge-resume";
+import { ResumeImport } from "@/features/onboarding/resume-import";
 import { missingRequirements } from "@/features/profiles/schemas";
 import { hardNavigate } from "@/lib/navigation";
 
@@ -17,6 +19,7 @@ type State = {
   skillIds: string[]; experience: Experience[]; portfolio: { title: string; url: string }[]; companyName: string | null; companyWebsite: string | null;
   companySize: string | null; industry: string | null; hiringNeeds: string | null; hasAvatar: boolean; balance: Balance | null;
   availableSkills: { id: string; name: string; category: string }[];
+  resume: { fileName: string; uploadedAt: string } | null;
 };
 
 const industries = ["Software & SaaS", "Web3 & crypto", "Finance & fintech", "E-commerce & retail", "Media & entertainment", "Education", "Health", "Agency & services", "Non-profit", "Other"];
@@ -153,6 +156,11 @@ export function OnboardingWizard() {
     update({ roles: next }, { roles: next.length ? next : undefined, primaryRole: next[0] });
   };
   const setExperience = (experience: Experience[]) => update({ experience }, { experience: experience.filter((e) => e.title.trim() && e.organization.trim()) });
+  const applyResume = (draft: ResumeDraft): string[] => {
+    const { patch, changed } = mergeResume(state, draft);
+    if (changed.length) update(patch);
+    return changed;
+  };
   const setPortfolio = (portfolio: { title: string; url: string }[]) => update({ portfolio }, { portfolio: portfolio.filter((p) => p.title.trim() && /^https?:\/\/.+/.test(p.url.trim())) });
 
   return (
@@ -161,7 +169,7 @@ export function OnboardingWizard() {
         {steps.map((step, index) => (
           <li key={step.key} className={index < stepIndex ? "done" : index === stepIndex ? "now" : ""}>
             <button type="button" onClick={() => void go(index)} disabled={!completed && index > stepIndex} aria-current={index === stepIndex ? "step" : undefined}>
-              <span className="mono">{index < stepIndex || (completed && index !== stepIndex) ? <Check size={14} aria-hidden="true" /> : index + 1}</span>{step.label}
+              <span className="stepNo mono">{index < stepIndex || (completed && index !== stepIndex) ? <Check size={13} aria-hidden="true" /> : index + 1}</span><span className="stepLabel">{step.label}</span>
             </button>
           </li>
         ))}
@@ -172,12 +180,12 @@ export function OnboardingWizard() {
 
       {current.key === "role" ? (
         <section className="wizardCard">
-          <h2>How will you use Jobba?</h2>
+          <h3>Choose your role</h3>
           <p className="muted">Choose one or both. You can change this later.</p>
           <div className="roleChoice">
             {([["client", "I’m hiring", "Post projects, review proposals and fund escrow.", Briefcase], ["freelancer", "I’m freelancing", "Build a profile, send proposals and get paid in USDC.", UserCheck]] as const).map(([role, title, copy, Icon]) => (
               <button type="button" key={role} className={`roleCard${roles.includes(role) ? " on" : ""}`} aria-pressed={roles.includes(role)} onClick={() => toggleRole(role)}>
-                <Icon size={24} aria-hidden="true" /><strong>{title}</strong><span>{copy}</span>
+                <span className="roleIcon"><Icon size={22} aria-hidden="true" /></span><strong>{title}</strong><span>{copy}</span><span className="roleTick" aria-hidden="true"><Check size={14} /></span>
               </button>
             ))}
           </div>
@@ -186,14 +194,16 @@ export function OnboardingWizard() {
 
       {current.key === "profile" ? (
         <section className="wizardCard">
-          <h2>{roles.includes("client") && !roles.includes("freelancer") ? "About you and your company" : "Your profile"}</h2>
+          <h3>{roles.includes("client") && !roles.includes("freelancer") ? "About you and your company" : "Your profile"}</h3>
+          {roles.includes("freelancer") ? <ResumeImport current={state.resume} onDraft={applyResume} /> : null}
           <div className="avatarField">
             {state.avatarUrl ? <img src={state.avatarUrl} alt="Your profile photo" className="avatarPreview" /> : <span className="avatarPreview empty" aria-hidden="true"><Camera size={28} /></span>}
             <div>
-              <label className="button ghost compactButton fileButton">{busy ? "Uploading…" : state.avatarUrl ? "Change photo" : "Upload photo"}
+              <label className="button ghost compactButton fileButton">
+                <Camera size={15} aria-hidden="true" />{busy ? "Uploading…" : state.avatarUrl ? "Change photo" : "Upload photo"}
                 <input type="file" accept="image/png,image/jpeg,image/webp" onChange={(e) => { const file = e.target.files?.[0]; if (file) void upload(file); e.target.value = ""; }} disabled={busy} />
               </label>
-              <p className="muted small">{roles.includes("client") && !roles.includes("freelancer") ? "A photo or company logo." : "A clear photo of you."} PNG, JPEG or WebP up to 2 MB.</p>
+              <p className="muted small hint">{roles.includes("client") && !roles.includes("freelancer") ? "A photo or company logo." : "A clear photo of you."} PNG, JPEG or WebP up to 2 MB.</p>
             </div>
           </div>
           <div className="twoCol">
@@ -227,7 +237,8 @@ export function OnboardingWizard() {
 
       {current.key === "work" ? (
         <section className="wizardCard">
-          <h2>Skills and experience</h2>
+          <h3>Skills and experience</h3>
+          {!state.resume ? <ResumeImport current={null} onDraft={applyResume} /> : null}
           <label><span>About you</span><textarea rows={5} value={state.bio ?? ""} maxLength={2000} placeholder="What you do best, who you have done it for, and how you work." onChange={(e) => update({ bio: e.target.value })} /><small className="counter">{(state.bio ?? "").length} / 2,000 · at least 40</small></label>
           <div><span className="fieldLabel">Skills</span>
             <div className="pillRow" role="group" aria-label="Skills">
@@ -243,7 +254,7 @@ export function OnboardingWizard() {
                     <label><span>Role</span><input value={item.title} maxLength={120} onChange={(e) => setExperience(state.experience.map((x, i) => i === index ? { ...x, title: e.target.value } : x))} /></label>
                     <label><span>Company or client</span><input value={item.organization} maxLength={120} onChange={(e) => setExperience(state.experience.map((x, i) => i === index ? { ...x, organization: e.target.value } : x))} /></label>
                   </div>
-                  <div className="threeCol">
+                  <div className="threeCol yearsRow">
                     <label><span>From</span><input type="number" min={1950} max={thisYear} value={item.startYear} onChange={(e) => setExperience(state.experience.map((x, i) => i === index ? { ...x, startYear: Number(e.target.value) } : x))} /></label>
                     <label><span>To</span><input type="number" min={1950} max={thisYear} value={item.endYear ?? ""} placeholder="Present" onChange={(e) => setExperience(state.experience.map((x, i) => i === index ? { ...x, endYear: e.target.value ? Number(e.target.value) : null } : x))} /></label>
                     <button type="button" className="button ghost compactButton" onClick={() => setExperience(state.experience.filter((_, i) => i !== index))}><Trash2 size={15} aria-hidden="true" />Remove</button>
@@ -257,7 +268,7 @@ export function OnboardingWizard() {
           <div><span className="fieldLabel">Portfolio links (optional)</span>
             <div className="experienceList">
               {state.portfolio.map((link, index) => (
-                <div className="threeCol" key={index}>
+                <div className="threeCol linkRow" key={index}>
                   <label><span>Title</span><input value={link.title} maxLength={120} onChange={(e) => setPortfolio(state.portfolio.map((x, i) => i === index ? { ...x, title: e.target.value } : x))} /></label>
                   <label><span>URL</span><input type="url" value={link.url} placeholder="https://" onChange={(e) => setPortfolio(state.portfolio.map((x, i) => i === index ? { ...x, url: e.target.value } : x))} /></label>
                   <button type="button" className="button ghost compactButton" onClick={() => setPortfolio(state.portfolio.filter((_, i) => i !== index))}><Trash2 size={15} aria-hidden="true" />Remove</button>
@@ -271,7 +282,7 @@ export function OnboardingWizard() {
 
       {current.key === "hiring" ? (
         <section className="wizardCard">
-          <h2>What will you hire for?</h2>
+          <h3>What will you hire for?</h3>
           <p className="muted">Freelancers see this on your projects. It helps the right people propose.</p>
           <label><span>Hiring needs</span><textarea rows={5} maxLength={2000} value={state.hiringNeeds ?? ""} placeholder="e.g. We ship a payments product and regularly need design, smart-contract and writing help." onChange={(e) => update({ hiringNeeds: e.target.value })} /><small className="counter">{(state.hiringNeeds ?? "").length} / 2,000 · at least 20</small></label>
         </section>
@@ -279,7 +290,7 @@ export function OnboardingWizard() {
 
       {current.key === "verify" ? (
         <section className="wizardCard">
-          <h2>Verify your wallet</h2>
+          <h3>Verify your wallet</h3>
           <p className="muted">Your wallet ownership was verified when you signed in. To finish, it must hold at least $1 worth of SOL. We read the balance on-chain; nothing is moved or charged.</p>
           <div className="verifyRow"><Wallet size={20} aria-hidden="true" /><span className="mono wrap">{state.walletAddress}</span><span className="chip active"><BadgeCheck size={13} aria-hidden="true" />Signature verified</span></div>
           <div className={`balanceBox${balance ? (balance.sufficient ?? Number(balance.usdCents) >= 100 ? " ok" : " low") : ""}`}>

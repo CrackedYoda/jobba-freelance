@@ -508,3 +508,122 @@ input:focus, select:focus, textarea:focus { outline: 3px solid color-mix(in srgb
 .walletCard .mono { font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .walletCard .chip { flex: none; }
 @media (max-width: 480px) { .walletCard .chip { display: none; } }
+
+/* ---------- Sign-up wizard (features/onboarding) ---------- */
+.wizard { display: grid; gap: 18px; width: 100%; }
+.wizardSteps { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.wizardSteps li { margin: 0; }
+.wizardSteps button { display: inline-flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 14px 0 6px; border-radius: 999px; border: 1px solid var(--line); background: #fff; color: var(--muted); font: 600 .88rem var(--font-body); cursor: pointer; }
+.wizardSteps button:disabled { cursor: default; opacity: .75; }
+.wizardSteps .stepNo { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: #ecede6; color: var(--muted); font-size: .78rem; }
+.wizardSteps li.now button { background: var(--ink); border-color: var(--ink); color: #fff; }
+.wizardSteps li.now .stepNo { background: var(--lime); color: var(--ink); }
+.wizardSteps li.done button { color: var(--green-deep); border-color: #cfe5d8; background: #f2f9f4; }
+.wizardSteps li.done .stepNo { background: var(--green); color: #fff; }
+.saveState { margin: -4px 0 0; display: flex; align-items: center; gap: 6px; font-size: .85rem; color: var(--green); }
+.saveState svg { flex: none; }
+.spin { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.wizardCard { background: #fff; border: 1px solid var(--line); border-radius: 22px; padding: clamp(18px, 3vw, 28px); display: grid; gap: 18px; }
+.wizardCard h3 { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -.03em; line-height: 1.1; }
+.wizardCard > p.muted { margin: -8px 0 0; line-height: 1.55; }
+.wizardCard label { display: grid; gap: 8px; font-weight: 600; font-size: .9rem; color: var(--ink); min-width: 0; }
+.wizardCard label > span:first-child { display: block; }
+.wizardCard .counter { font-weight: 400; font-size: .78rem; text-align: right; }
+.wizardCard .fieldLabel { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 10px; }
+.twoCol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.threeCol { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end; }
+.threeCol.yearsRow, .threeCol.linkRow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+.threeCol > .button { min-height: 46px; }
+
+/* Role choice: selectable cards with an icon and a tick */
+.wizard .roleChoice { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.wizard .roleCard { position: relative; display: grid; gap: 6px; justify-items: start; align-content: start; text-align: left; padding: 20px; min-height: 0; border-radius: 18px; border: 1px solid var(--line); background: #fff; color: var(--ink); font: inherit; cursor: pointer; transition: border-color .15s, box-shadow .15s; }
+.wizard .roleCard:hover { border-color: var(--ink); }
+.wizard .roleCard strong { font-size: 1.05rem; margin-top: 8px; }
+.wizard .roleCard > span:not(.roleIcon):not(.roleTick) { color: var(--muted); font-size: .92rem; line-height: 1.5; }
+.wizard .roleCard .roleIcon { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; background: #f1f2ea; color: var(--ink); }
+.wizard .roleCard .roleTick { position: absolute; top: 16px; right: 16px; width: 24px; height: 24px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; color: transparent; }
+.wizard .roleCard.on { border-color: var(--green); box-shadow: 0 0 0 3px #ddf0e6; }
+.wizard .roleCard.on .roleIcon { background: var(--ink); color: var(--lime); }
+.wizard .roleCard.on .roleTick { background: var(--green); border-color: var(--green); color: #fff; }
+
+/* Photo / logo upload */
+.avatarField { display: flex; align-items: center; gap: 18px; padding: 16px; border-radius: 18px; background: #f6f6f0; }
+.avatarPreview { width: 76px; height: 76px; border-radius: 20px; object-fit: cover; flex: none; display: block; background: #fff; }
+.avatarPreview.empty { display: grid; place-items: center; border: 2px dashed #cbd2c7; color: var(--muted); background: #fff; }
+.avatarField > div { display: grid; gap: 6px; justify-items: start; min-width: 0; }
+.wizardCard .fileButton { position: relative; display: inline-flex; grid-auto-flow: column; gap: 8px; cursor: pointer; font-size: .9rem; }
+.wizardCard .fileButton input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.wizardCard .fileButton:focus-within { outline: 2px solid var(--green); outline-offset: 2px; }
+.hint { margin: 0; font-size: .82rem; line-height: 1.45; }
+
+/* Experience and portfolio */
+.experienceList { display: grid; gap: 12px; justify-items: start; }
+.experienceList > * { width: 100%; }
+.experienceList > .button { width: auto; }
+.experienceItem { margin: 0; border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: grid; gap: 12px; background: #fbfbf7; }
+.srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+
+/* Verify step */
+.verifyRow { display: flex; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 16px; border: 1px solid var(--line); flex-wrap: wrap; }
+.verifyRow > svg { color: var(--green); flex: none; }
+.verifyRow .wrap { flex: 1; min-width: 0; overflow-wrap: anywhere; font-size: .85rem; }
+.verifyRow .chip { gap: 6px; }
+.balanceBox { display: flex; justify-content: space-between; align-items: center; gap: 14px; padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: #f6f6f0; flex-wrap: wrap; }
+.balanceBox > div { display: grid; gap: 4px; }
+.balanceBox strong { font-family: var(--font-mono); font-size: 1.1rem; }
+.balanceBox span { color: var(--muted); font-size: .88rem; }
+.balanceBox.ok { background: #eef8f2; border-color: #b9dcc8; }
+.balanceBox.low { background: #fdf1e2; border-color: #f2c9a4; }
+.balanceBox.low strong { color: var(--amber); }
+.missingBox { padding: 16px 18px; border-radius: 16px; background: #fdf1e2; color: var(--amber); }
+.missingBox ul { margin: 8px 0 0; padding-left: 18px; display: grid; gap: 4px; color: #7c2d12; font-size: .92rem; line-height: 1.45; }
+
+.wizardNav { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.wizardNav .button.primary { min-width: 160px; }
+
+@media (max-width: 640px) {
+  .twoCol, .threeCol, .wizard .roleChoice { grid-template-columns: minmax(0, 1fr); }
+  .threeCol.yearsRow, .threeCol.linkRow { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .threeCol.yearsRow > .button, .threeCol.linkRow > .button { grid-column: 1 / -1; justify-self: start; }
+  .wizardSteps .stepLabel { display: none; }
+  .wizardSteps li.now .stepLabel { display: inline; }
+  .avatarField { align-items: flex-start; }
+  .wizardNav .button { flex: 1; }
+}
+.wizardCard input, .wizardCard select, .wizardCard textarea { font-weight: 400; font-size: .95rem; }
+.wizardCard select { min-height: 46px; }
+@media (max-width: 640px) {
+  .wizardSteps { flex-wrap: nowrap; }
+  .wizardSteps li:not(.now) button { padding: 0 5px; }
+  .connectSteps { gap: 8px; flex-wrap: nowrap; }
+  .connectSteps li:not([aria-current="step"]) div { display: none; }
+  .connectSteps small { display: none; }
+}
+.verifyRow .wrap { flex: 1 1 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; overflow-wrap: normal; }
+.connectPanel, .wizard, .wizardCard { grid-template-columns: minmax(0, 1fr); }
+.connectPanel > *, .wizard > *, .wizardCard > * { min-width: 0; }
+
+/* Résumé import (freelancer sign-up) */
+.resumeImport { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 18px; border-radius: 18px; border: 1px dashed #b9c4b4; background: linear-gradient(135deg, #f8fbef, #f4f3ec); }
+.resumeImport.done { border-style: solid; border-color: #b9dcc8; background: #eef8f2; }
+.resumeIcon { width: 46px; height: 46px; border-radius: 14px; background: var(--ink); color: var(--lime); display: grid; place-items: center; }
+.resumeImport.done .resumeIcon { background: var(--green); color: #fff; }
+.resumeCopy { display: grid; gap: 4px; min-width: 0; }
+.resumeCopy strong { font-size: 1rem; }
+.resumeCopy > span { color: var(--muted); font-size: .88rem; line-height: 1.5; }
+.resumeFilled { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.resumeFilled li { display: inline-flex; align-items: center; gap: 4px; padding: 4px 9px; border-radius: 999px; background: #fff; border: 1px solid #cfe5d8; color: var(--green-deep); font-size: .78rem; font-weight: 600; }
+.resumeFile { display: inline-flex; align-items: center; gap: 6px; width: fit-content; margin-top: 4px; font-size: .82rem; color: var(--green); font-weight: 600; }
+.resumeFile:hover { text-decoration: underline; }
+.resumeError { color: var(--amber) !important; font-weight: 600; }
+.resumeImport .fileButton[aria-disabled="true"] { opacity: .6; pointer-events: none; }
+@media (max-width: 640px) {
+  .resumeImport { grid-template-columns: auto minmax(0, 1fr); }
+  .resumeImport .fileButton { grid-column: 1 / -1; justify-self: start; }
+}
+.wizardCard label.button { display: inline-flex; font-weight: 600; }
+.wizardCard label.button.primary { color: #fff; }
+.wizardCard label.button.ghost { color: var(--ink); }
