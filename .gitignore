@@ -1,0 +1,21 @@
+# OS & Tooling
+.DS_Store
+.tooling/
+
+# Dependencies & Build artifacts
+node_modules/
+.next/
+target/
+.anchor/
+coverage/
+playwright-report/
+test-results/
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.*
+.env*.local
+!.env.example
+# Documentation / Markdown
+*.md

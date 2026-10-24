@@ -1,0 +1,45 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: jobba
+          POSTGRES_PASSWORD: jobba
+          POSTGRES_DB: jobba_freelance
+        ports: ["5434:5432"]
+        options: >-
+          --health-cmd "pg_isready -U jobba -d jobba_freelance" --health-interval 3s --health-retries 20
+    env:
+      DATABASE_URL: postgres://jobba:jobba@localhost:5434/jobba_freelance
+    defaults:
+      run:
+        working-directory: jobba-freelance-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: jobba-freelance-frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Apply migrations and seed
+        run: |
+          for f in ../jobba-freelance-backend/database/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$f"; done
+          psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f ../jobba-freelance-backend/database/seed.sql
+      - run: npm run test:db
+      - run: npm run build

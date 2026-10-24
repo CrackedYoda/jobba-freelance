@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "deployment": "replace-with-devnet-release-name",
+  "cluster": "devnet",
+  "programId": "replace-with-deployed-program-public-key",
+  "usdcMint": "replace-with-six-decimal-usdc-or-mock-mint",
+  "tokenProgramId": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+  "admin": "replace-with-admin-wallet-public-key",
+  "treasury": "replace-with-treasury-authority-public-key",
+  "feeBps": 250
+}
