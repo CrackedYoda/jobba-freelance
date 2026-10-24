@@ -27,6 +27,16 @@ if (publicEnv.reownProjectId) {
       socials: [],
     },
     themeMode: "light",
+    // Match the Jobba palette: ink accent, warm paper surfaces, Geist type, rounded corners.
+    themeVariables: {
+      "--w3m-accent": "#0E1512",
+      "--w3m-color-mix": "#F4F3EC",
+      "--w3m-color-mix-strength": 40,
+      "--w3m-font-family": "\"Geist Variable\", system-ui, sans-serif",
+      "--w3m-border-radius-master": "4px",
+      "--w3m-qr-color": "#0E1512",
+      "--w3m-z-index": 1000,
+    },
   });
 
   appKit.subscribeRemoteFeatures((features) => {

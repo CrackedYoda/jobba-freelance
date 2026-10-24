@@ -60,7 +60,10 @@ export function useWalletAuth() {
       const challengeResponse = await fetch("/api/v1/auth/challenge", {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ address }),
       });
-      if (!challengeResponse.ok) throw new Error("Could not create a sign-in challenge.");
+      if (!challengeResponse.ok) {
+        const failure = await challengeResponse.json().catch(() => ({})) as { error?: { message?: string } };
+        throw new Error(failure.error?.message ?? "Could not create a sign-in challenge. Please try again.");
+      }
       const challenge = await challengeResponse.json() as ChallengeResponse;
       setMessage(challenge.message);
 
@@ -72,7 +75,10 @@ export function useWalletAuth() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, nonce: challenge.nonce, signature: bytesToBase64(signature) }),
       });
-      if (!verifyResponse.ok) throw new Error("The wallet signature was rejected.");
+      if (!verifyResponse.ok) {
+        const failure = await verifyResponse.json().catch(() => ({})) as { error?: { message?: string } };
+        throw new Error(failure.error?.message ?? "The wallet signature was rejected.");
+      }
       const next = await verifyResponse.json() as SessionResponse;
       setSession(next);
       authenticatedWallet.current = next.walletAddress;

@@ -1,5 +1,6 @@
 "use client";
 
+import { Wallet } from "lucide-react";
 import Link from "next/link";
 
 import { useWalletAuth } from "@/features/auth/use-wallet-auth";
@@ -48,9 +49,10 @@ function Flow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
           <span className="eyebrow">Step 2 of 3</span>
           <h2 id="c1">Confirm your wallet</h2>
           <p className="lead">Approve the sign-in request in your wallet to continue.</p>
-          <div className="messageCard">
-            <div><span className="mono">{auth.address}</span><span className="chip open mono">SOLANA</span></div>
-            <small>Connected wallet</small>
+          <div className="walletCard">
+            <span className="walletCardIcon" aria-hidden="true"><Wallet size={20} /></span>
+            <div><small>Connected wallet</small><span className="mono">{auth.address}</span></div>
+            <span className="chip open mono">SOLANA</span>
           </div>
           {busy ? <p className="formNotice" role="status">{auth.status === "signing" ? "Approve the request in your wallet to continue." : "Working…"}</p> : null}
           {auth.error ? <p className="formNotice error" role="alert">{auth.error}</p> : null}

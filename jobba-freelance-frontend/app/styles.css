@@ -500,3 +500,11 @@ input:focus, select:focus, textarea:focus { outline: 3px solid color-mix(in srgb
 .headerActions .menuFooter .textButton { display: block; }
 .menuTop .menuToggle { background: transparent; border-color: transparent; }
 .menuToggle { background: transparent; border-color: transparent; }
+
+.walletCard { display: flex; align-items: center; gap: 14px; background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 16px 18px; margin: 8px 0 18px; }
+.walletCardIcon { width: 40px; height: 40px; border-radius: 12px; background: var(--ink); color: var(--lime); display: grid; place-items: center; flex: none; }
+.walletCard > div { display: grid; gap: 3px; min-width: 0; flex: 1; }
+.walletCard small { color: var(--muted); font-size: .78rem; }
+.walletCard .mono { font-size: .85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.walletCard .chip { flex: none; }
+@media (max-width: 480px) { .walletCard .chip { display: none; } }

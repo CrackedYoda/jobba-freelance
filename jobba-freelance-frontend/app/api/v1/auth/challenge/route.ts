@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import { challengeRequestSchema } from "@/features/auth/schemas";
 import { getServerEnv } from "@/lib/config/env";
-import { assertSameOrigin, invalidRequest } from "@/server/auth/http";
+import { assertSameOrigin, invalidRequest, requestOrigin } from "@/server/auth/http";
 import { buildSignInMessage } from "@/server/auth/message";
 import { getRequestIp, takeRateLimit } from "@/server/auth/rate-limit";
 import { createNonce, saveChallenge } from "@/server/auth/store";
@@ -22,11 +22,12 @@ export async function POST(request: Request) {
   const now = new Date();
   const expiresAt = new Date(now.getTime() + env.SIWS_NONCE_TTL_SECONDS * 1_000);
   const nonce = createNonce();
+  const site = requestOrigin(request);
   const message = buildSignInMessage({
-    domain: env.SIWS_DOMAIN,
+    domain: site.host,
     address: parsed.data.address,
     statement: env.SIWS_STATEMENT,
-    uri: env.NEXT_PUBLIC_APP_URL,
+    uri: site.origin,
     chainId: `solana:${env.NEXT_PUBLIC_SOLANA_CLUSTER}`,
     nonce,
     issuedAt: now.toISOString(),
