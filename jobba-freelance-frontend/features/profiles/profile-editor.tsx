@@ -8,6 +8,7 @@ type Profile = {
   headline: string | null;
   location: string | null;
   bio: string | null;
+  avatarUrl: string | null;
   hourlyRateAtomic: string | null;
   availability: "available" | "limited" | "unavailable";
   roles: ("client" | "freelancer" | "admin")[];
@@ -58,7 +59,7 @@ export function ProfileEditor({ onSaved }: { onSaved?: () => void } = {}) {
         body: JSON.stringify({
           displayName: form.get("displayName"), headline: form.get("headline") || null, location: form.get("location") || null,
           bio: form.get("bio") || null, hourlyRateAtomic: toAtomic(String(form.get("rate") ?? "")), availability: form.get("availability"),
-          roles, skillIds: form.getAll("skillIds"),
+          roles, skillIds: form.getAll("skillIds"), avatarUrl: String(form.get("avatarUrl") ?? "").trim() || undefined,
           portfolio: portfolioUrl ? [{ title: String(form.get("portfolioTitle") || "Portfolio"), url: portfolioUrl }] : [],
         }),
       });
@@ -89,6 +90,7 @@ export function ProfileEditor({ onSaved }: { onSaved?: () => void } = {}) {
       <fieldset>
         <legend>Your details</legend>
         <label><span>Display name</span><input name="displayName" required maxLength={80} defaultValue={profile.displayName} /></label>
+        <label><span>Profile photo URL <small>(optional, HTTPS)</small></span><input name="avatarUrl" type="url" defaultValue={profile.avatarUrl ?? ""} placeholder="https://…" /></label>
         <label><span>Location</span><input name="location" required={isFreelancer} maxLength={120} defaultValue={profile.location ?? ""} placeholder="Lagos, NG" /></label>
         {isFreelancer ? (
           <>

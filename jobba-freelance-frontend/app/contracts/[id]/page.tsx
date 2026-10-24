@@ -9,6 +9,7 @@ import { ChainStateCard } from "@/features/contracts/chain-state-card";
 import { ContractChat } from "@/features/contracts/contract-chat";
 import { EscrowActionPanel } from "@/features/contracts/escrow-action-panel";
 import { SubmissionPanel } from "@/features/contracts/submission-panel";
+import { AbandonContract } from "@/features/contracts/abandon-contract";
 import { ContractDisputePanel } from "@/features/disputes/contract-dispute-panel";
 import { PLATFORM_FEE_BPS, fromAtomic, platformFee } from "@/lib/domain/money";
 import { getContractFor, getViewer, shortKey, viewerActor } from "@/server/marketplace/service";
@@ -63,6 +64,7 @@ export default async function ContractWorkspace({ params }: { params: Promise<{ 
               <p className="prose clamp">{contract.description}</p>
               <Link className="verifiedMark" href={`/projects/${contract.projectId}`}>View original project →</Link>
             </section>
+            {contract.status === "funding_pending" && role === "client" ? <AbandonContract contractId={contract.id} projectId={contract.projectId} /> : null}
             <SubmissionPanel contractId={id} />
             <ContractChat contractId={id} />
             {canDispute ? <ContractDisputePanel contractId={id} /> : null}

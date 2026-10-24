@@ -1,7 +1,6 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/brand/logo";
-import { DevnetBanner } from "@/components/marketplace/devnet-banner";
 import { SignOutButton } from "@/features/auth/wallet-sign-in";
 import { getViewer, shortKey } from "@/server/marketplace/service";
 
@@ -11,14 +10,13 @@ function initials(name: string | undefined, fallback: string): string {
   return letters.toUpperCase();
 }
 
-export async function SiteHeader({ active }: { active?: "work" | "talent" | "dashboard" | "contracts" | "admin" }) {
+export async function SiteHeader({ active }: { active?: "work" | "talent" | "dashboard" | "contracts" | "admin" | "help" }) {
   const viewer = await getViewer();
   const link = (key: string, href: string, label: string) => (
     <Link href={href} aria-current={active === key ? "page" : undefined} className={active === key ? "on" : undefined}>{label}</Link>
   );
   return (
     <>
-      <DevnetBanner />
       <header className="marketHeader">
         <nav className="shell marketNav" aria-label="Primary">
           <Logo />
@@ -26,6 +24,8 @@ export async function SiteHeader({ active }: { active?: "work" | "talent" | "das
             {link("work", "/projects", "Find work")}
             {link("talent", "/freelancers", "Find talent")}
             {viewer.authenticated ? link("dashboard", "/dashboard", "Dashboard") : null}
+            {viewer.authenticated ? link("contracts", "/contracts", "Contracts") : null}
+            {link("help", "/help", "Help")}
             {viewer.roles.includes("client") || !viewer.authenticated ? <Link className="mobileOnly" href="/projects/new">Post a project</Link> : null}
             {viewer.roles.includes("admin") ? link("admin", "/admin/disputes", "Disputes") : null}
           </div>

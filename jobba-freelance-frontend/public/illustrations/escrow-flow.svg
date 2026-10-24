@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 200" fill="none" font-family="ui-monospace, monospace" font-size="13">
+  <rect x="10" y="60" width="130" height="80" rx="18" fill="#fff" stroke="#0E1512" stroke-width="3"/>
+  <circle cx="44" cy="100" r="16" fill="#0E1512"/><text x="68" y="96" fill="#0E1512" font-weight="700">Client</text><text x="68" y="114" fill="#56625C">funds</text>
+  <rect x="215" y="40" width="130" height="120" rx="22" fill="#0E1512"/>
+  <rect x="241" y="64" width="78" height="54" rx="12" fill="#C6F24E"/>
+  <path d="M290 74v14a10 10 0 0 1-20 0" stroke="#0E1512" stroke-width="5" stroke-linecap="round"/><circle cx="266" cy="80" r="4" fill="#0E1512"/>
+  <text x="280" y="144" fill="#fff" text-anchor="middle">Escrow vault</text>
+  <rect x="420" y="60" width="130" height="80" rx="18" fill="#fff" stroke="#17704D" stroke-width="3"/>
+  <circle cx="454" cy="100" r="16" fill="#17704D"/><text x="478" y="96" fill="#0E1512" font-weight="700">Freelancer</text><text x="478" y="114" fill="#56625C">paid</text>
+  <path d="M146 100h58" stroke="#0E1512" stroke-width="3" stroke-dasharray="6 6"/><path d="M198 92l10 8-10 8" stroke="#0E1512" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M352 100h58" stroke="#17704D" stroke-width="3" stroke-dasharray="6 6"/><path d="M404 92l10 8-10 8" stroke="#17704D" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="175" y="84" fill="#56625C" text-anchor="middle">USDC</text><text x="381" y="84" fill="#17704D" text-anchor="middle">release</text>
+</svg>

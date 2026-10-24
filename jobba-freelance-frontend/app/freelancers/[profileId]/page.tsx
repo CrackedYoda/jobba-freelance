@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { Avatar } from "@/components/marketplace/avatar";
 import { SiteFooter } from "@/components/marketplace/site-footer";
 import { SiteHeader } from "@/components/marketplace/site-header";
 import { getFreelancer, getViewer, shortKey } from "@/server/marketplace/service";
@@ -18,7 +19,7 @@ export default async function FreelancerPage({ params }: { params: Promise<{ pro
       <SiteHeader active="talent" />
       <main className="shell profilePage pageSection">
         <section className="profileHero">
-          <div className="avatar" aria-hidden="true">{profile.name.split(" ").map((part) => part[0]).join("").slice(0, 2)}</div>
+          <Avatar name={profile.name} url={profile.avatarUrl} />
           <div><p className="eyebrow">{profile.availability}</p><h1>{profile.name}</h1><p className="lead">{profile.headline}</p><div className="profileMeta"><span>{profile.location}</span><span className="mono">{shortKey(profile.wallet)}</span></div></div>
           {own ? <Link className="button ghost" href="/onboarding">Edit profile</Link> : <Link className="button primary" href="/projects/new">Discuss a project</Link>}
         </section>

@@ -4,6 +4,7 @@ import { AppKitProvider } from "@/providers/appkit-provider";
 import "./styles.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"),
   title: "Jobba Freelance",
   description: "Hire and get paid through USDC escrow on Solana.",
 };

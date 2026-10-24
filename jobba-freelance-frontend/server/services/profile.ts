@@ -39,8 +39,8 @@ export async function updateOwnProfile(actor: Actor, input: UpdateProfileInput) 
       if (found.rowCount !== input.skillIds.length) throw new AppError("INVALID_SKILL", "One or more selected skills do not exist.", 400);
     }
     await client.query(
-      `update profiles set display_name=$2, headline=$3, location=$4, bio=$5, hourly_rate_atomic=$6, availability=$7 where id=$1`,
-      [actor.profileId, input.displayName, input.headline, input.location, input.bio, input.hourlyRateAtomic, input.availability],
+      `update profiles set display_name=$2, headline=$3, location=$4, bio=$5, hourly_rate_atomic=$6, availability=$7, avatar_url=coalesce($8, avatar_url) where id=$1`,
+      [actor.profileId, input.displayName, input.headline, input.location, input.bio, input.hourlyRateAtomic, input.availability, input.avatarUrl === undefined ? null : input.avatarUrl],
     );
     await client.query("delete from profile_roles where profile_id=$1 and role <> 'admin'", [actor.profileId]);
     for (const role of input.roles) await client.query("insert into profile_roles (profile_id, role) values ($1,$2)", [actor.profileId, role]);

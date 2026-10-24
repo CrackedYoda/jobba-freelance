@@ -6,6 +6,9 @@ export type ProjectSummary = {
   category: string;
   status: string;
   skills: string[];
+  skillIds: string[];
+  pendingProposals: number;
+  contractId: string | null;
   budgetAtomic: string;
   budgetUsdc: string;
   deliveryDays: number;
@@ -19,6 +22,7 @@ export type ProjectSummary = {
 export type FreelancerProfile = {
   id: string;
   name: string;
+  avatarUrl: string | null;
   headline: string;
   bio: string;
   location: string;

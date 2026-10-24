@@ -18,7 +18,7 @@ export function DashboardShell({ children, active, viewer }: { children: ReactNo
         <aside className="dashboardRail">
           <p className="eyebrow">Workspace</p>
           <nav aria-label="Dashboard navigation">{links.map(([key, label, href]) => <Link className={active === key ? "active" : ""} aria-current={active === key ? "page" : undefined} href={href} key={key}>{label}</Link>)}</nav>
-          <div className="networkNote"><i aria-hidden="true" /> Solana devnet</div>
+          <div className="networkNote"><i aria-hidden="true" /> Connected to Solana</div>
         </aside>
         <main className="dashboardMain">{children}</main>
       </div>

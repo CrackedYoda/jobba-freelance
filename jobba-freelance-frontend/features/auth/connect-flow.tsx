@@ -39,9 +39,9 @@ function Flow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
         <section aria-labelledby="c0">
           <span className="eyebrow">Step 1 of 3</span>
           <h2 id="c0">Connect a Solana wallet</h2>
-          <p className="lead">Pick Phantom, Solflare, Backpack or any WalletConnect wallet. Use a different wallet for the client and freelancer side when testing.</p>
+          <p className="lead">Pick Phantom, Solflare, Backpack or any WalletConnect wallet. Hiring and freelancing can share one wallet; you choose roles in the next step.</p>
           <button className="button primary wide" type="button" onClick={auth.connect}>Choose a wallet</button>
-          <p className="fine">By connecting you agree to the devnet test terms.</p>
+          <p className="fine">By connecting you agree to the <Link className="inlineLink" href="/terms">terms of service</Link> and <Link className="inlineLink" href="/privacy">privacy policy</Link>. New to wallets? <Link className="inlineLink" href="/help/wallets-and-sign-in">Read the guide</Link>.</p>
         </section>
       ) : null}
       {step === 1 ? (
@@ -50,7 +50,7 @@ function Flow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
           <h2 id="c1">Sign in with Solana</h2>
           <p className="lead">Your wallet will show an exact message. It expires in 5 minutes and can be used once.</p>
           <div className="messageCard">
-            <div><span className="mono">{auth.address}</span><span className="chip open mono">DEVNET</span></div>
+            <div><span className="mono">{auth.address}</span><span className="chip open mono">SOLANA</span></div>
             <pre className="mono">{auth.message ?? "The message is created by the server when you press Sign message."}</pre>
           </div>
           {busy ? <p className="formNotice" role="status">{auth.status === "signing" ? "Waiting for your wallet… approve the request to continue." : "Working…"}</p> : null}

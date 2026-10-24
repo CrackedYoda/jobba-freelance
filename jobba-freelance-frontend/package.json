@@ -15,7 +15,8 @@
     "test": "vitest run",
     "verify": "npm run env:check && npm run lint && npm run typecheck && npm test && npm run build",
     "verify:deploy": "npm run env:check:deploy && npm run verify",
-    "test:db": "vitest run -c vitest.integration.config.mts"
+    "test:db": "vitest run -c vitest.integration.config.mts",
+    "test:e2e": "node tests/e2e/routes.mjs"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "^5.3.0",
@@ -25,6 +26,7 @@
     "@reown/appkit-adapter-solana": "^1.8.24",
     "@solana/web3.js": "^1.99.0",
     "bs58": "^6.0.0",
+    "lucide-react": "^1.61.0",
     "next": "16.4.2",
     "pg": "^8.23.1",
     "react": "19.3.1",

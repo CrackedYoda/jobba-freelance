@@ -1,5 +1,7 @@
 import "server-only";
 
+import { DeploymentConfigError } from "@/lib/solana/deployment";
+
 import type { AddEvidenceInput, CreateDisputeInput, ListAdminDisputesInput, PrepareResolutionInput } from "@/features/disputes/schemas";
 import { decodeCursor, encodeCursor } from "@/server/db/cursor";
 import { getDatabase } from "@/server/db/client";
@@ -39,6 +41,7 @@ function expose(row: Record<string, unknown>) {
 
 function chainError(error: unknown): never {
   if (error instanceof SolanaBoundaryError) throw new AppError(error.code, error.message, error.status);
+  if (error instanceof DeploymentConfigError) throw new AppError("ESCROW_NOT_CONFIGURED", "On-chain escrow is not available right now. Try again shortly.", 503);
   throw error;
 }
 
@@ -56,6 +59,11 @@ export async function openDispute(actor: Actor, input: CreateDisputeInput) {
     }
     return { dispute: expose(row), chain: null };
   }
+  const contract = await db.query<{ client_id: string; freelancer_id: string; status: string }>("select client_id, freelancer_id, status from contracts where id = $1", [input.contractId]);
+  const row = contract.rows[0];
+  if (!row) throw new AppError("CONTRACT_NOT_FOUND", "Contract not found.", 404);
+  if (![row.client_id, row.freelancer_id].includes(actor.profileId)) throw new AppError("FORBIDDEN", "Only contract participants can open a dispute.", 403);
+  if (!["funded", "active", "submitted"].includes(row.status)) throw new AppError("INVALID_CONTRACT_STATE", `A dispute cannot be opened while the contract is ${row.status.replace("_", " ")}.`, 409);
   let chain;
   try { chain = await buildChainAction(input.contractId, "open_dispute", input.idempotencyKey, actor.walletAddress); }
   catch (error) { chainError(error); }

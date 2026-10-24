@@ -28,21 +28,23 @@ const schema = z.object({
 
 export type SolanaDeployment = Omit<z.infer<typeof schema>, "cluster"> & { cluster: SolanaCluster };
 
+export class DeploymentConfigError extends Error {}
+
 let cached: SolanaDeployment | undefined;
 
 export function getSolanaDeployment(): SolanaDeployment {
   if (cached) return cached;
   const raw = process.env.SOLANA_DEPLOYMENT_MANIFEST_JSON;
-  if (!raw) throw new Error("SOLANA_DEPLOYMENT_MANIFEST_JSON is required; refusing to construct a transaction.");
+  if (!raw) throw new DeploymentConfigError("SOLANA_DEPLOYMENT_MANIFEST_JSON is required; refusing to construct a transaction.");
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
   } catch {
-    throw new Error("SOLANA_DEPLOYMENT_MANIFEST_JSON is not valid JSON.");
+    throw new DeploymentConfigError("SOLANA_DEPLOYMENT_MANIFEST_JSON is not valid JSON.");
   }
   const deployment = schema.parse(parsed) as SolanaDeployment;
   const configuredCluster = process.env.NEXT_PUBLIC_SOLANA_CLUSTER ?? "devnet";
-  if (deployment.cluster !== configuredCluster) throw new Error("Deployment manifest cluster does not match NEXT_PUBLIC_SOLANA_CLUSTER.");
+  if (deployment.cluster !== configuredCluster) throw new DeploymentConfigError("Deployment manifest cluster does not match NEXT_PUBLIC_SOLANA_CLUSTER.");
   cached = deployment;
   return deployment;
 }

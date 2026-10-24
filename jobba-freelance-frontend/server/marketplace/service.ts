@@ -58,7 +58,10 @@ const projectSql = `
          c.display_name as client_name, coalesce(c.location, 'Remote') as client_location, c.wallet_public_key as client_wallet,
          (select count(*)::int from proposals x where x.project_id = p.id and x.status in ('pending','accepted')) as proposal_count,
          (select count(*)::int from contracts k where k.client_id = p.client_id and k.status in ('funded','active','submitted','released','resolved')) as funded_count,
-         coalesce((select array_agg(s.name::text order by s.name) from project_skills ps join skills s on s.id = ps.skill_id where ps.project_id = p.id), '{}') as skills
+         coalesce((select array_agg(s.name::text order by s.name) from project_skills ps join skills s on s.id = ps.skill_id where ps.project_id = p.id), '{}') as skills,
+         coalesce((select array_agg(ps.skill_id::text) from project_skills ps where ps.project_id = p.id), '{}') as skill_ids,
+         (select count(*)::int from proposals x where x.project_id = p.id and x.status = 'pending') as pending_count,
+         (select k.id from contracts k where k.project_id = p.id) as contract_id
     from projects p join profiles c on c.id = p.client_id`;
 
 function projectView(row: Row): ProjectSummary {
@@ -66,7 +69,7 @@ function projectView(row: Row): ProjectSummary {
   return {
     id: String(row.id), title: String(row.title), description, category: String(row.category), status: String(row.status),
     summary: description.length > 180 ? `${description.slice(0, 177)}…` : description,
-    skills: row.skills as string[], budgetAtomic: String(row.budget_atomic), budgetUsdc: usdc(row.budget_atomic),
+    skills: row.skills as string[], skillIds: row.skill_ids as string[], pendingProposals: Number(row.pending_count), contractId: (row.contract_id as string | null) ?? null, budgetAtomic: String(row.budget_atomic), budgetUsdc: usdc(row.budget_atomic),
     deliveryDays: Number(row.delivery_days), proposals: Number(row.proposal_count),
     postedAt: relativeDate(row.published_at ?? row.created_at), createdAt: String(row.created_at), clientId: String(row.client_id),
     client: { name: String(row.client_name), location: String(row.client_location), projectsFunded: Number(row.funded_count), wallet: String(row.client_wallet) },
@@ -93,9 +96,9 @@ export async function listProjects(filters: ProjectFilters = {}): Promise<Projec
   return rows.map(projectView);
 }
 
-export async function getProject(projectId: string): Promise<ProjectSummary | undefined> {
+export async function getProject(projectId: string, viewerProfileId?: string): Promise<ProjectSummary | undefined> {
   if (!UUID.test(projectId)) return undefined;
-  const { rows } = await getDatabase().query(`${projectSql} where p.id = $1 and p.status <> 'draft'`, [projectId]);
+  const { rows } = await getDatabase().query(`${projectSql} where p.id = $1 and (p.status <> 'draft' or p.client_id = $2)`, [projectId, viewerProfileId ?? null]);
   return rows[0] ? projectView(rows[0]) : undefined;
 }
 
@@ -143,7 +146,7 @@ export async function listMyProposals(profileId: string): Promise<ProposalSummar
 }
 
 const freelancerSql = `
-  select p.id, p.display_name, coalesce(p.headline, '') as headline, coalesce(p.bio, '') as bio, coalesce(p.location, 'Remote') as location,
+  select p.id, p.display_name, p.avatar_url, coalesce(p.headline, '') as headline, coalesce(p.bio, '') as bio, coalesce(p.location, 'Remote') as location,
          p.hourly_rate_atomic, p.availability, p.wallet_public_key,
          (select count(*)::int from contracts k where k.freelancer_id = p.id and k.status in ('released','resolved')) as completed,
          (select coalesce(sum(k.amount_atomic - k.fee_atomic), 0) from contracts k where k.freelancer_id = p.id and k.status = 'released') as earned,
@@ -155,7 +158,7 @@ const availabilityLabel: Record<string, string> = { available: "Available now", 
 
 function freelancerView(row: Row): FreelancerProfile {
   return {
-    id: String(row.id), name: String(row.display_name), headline: String(row.headline), bio: String(row.bio), location: String(row.location),
+    id: String(row.id), name: String(row.display_name), avatarUrl: (row.avatar_url as string | null) ?? null, headline: String(row.headline), bio: String(row.bio), location: String(row.location),
     rateUsdc: row.hourly_rate_atomic == null ? "—" : usdc(row.hourly_rate_atomic), availability: availabilityLabel[String(row.availability)] ?? String(row.availability),
     skills: row.skills as string[], completedContracts: Number(row.completed), earnedUsdc: usdc(row.earned), wallet: String(row.wallet_public_key),
     portfolio: row.portfolio as { label: string; url: string }[],

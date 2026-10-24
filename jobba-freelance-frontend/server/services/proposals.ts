@@ -85,3 +85,42 @@ export async function prepareProposalFunding(actor: Actor, proposalId: string) {
     throw error;
   }
 }
+
+export async function rejectProposal(actor: Actor, proposalId: string) {
+  const db = getDatabase();
+  const proposal = await getProposalById(db, proposalId);
+  if (!proposal) throw new AppError("PROPOSAL_NOT_FOUND", "Proposal not found.", 404);
+  const project = await getProjectById(db, proposal.project_id as string);
+  if (!project || project.client_id !== actor.profileId) throw new AppError("FORBIDDEN", "Only the project client can reject a proposal.", 403);
+  if (proposal.status !== "pending") throw new AppError("INVALID_PROPOSAL_STATE", "Only pending proposals can be rejected.", 409);
+  const contract = await findContractByProposal(db, proposalId);
+  if (contract) throw new AppError("PROPOSAL_SELECTED", "This proposal already has a contract. Abandon it first.", 409);
+  const { rowCount } = await db.query("update proposals set status = 'rejected', version = version + 1 where id = $1 and status = 'pending'", [proposalId]);
+  if (!rowCount) throw new AppError("PROPOSAL_CONFLICT", "The proposal changed before it could be rejected.", 409);
+  return serializeProposal(await getProposalById(db, proposalId) as Record<string, unknown>);
+}
+
+/** Removes a contract that was selected but never funded, so the client can pick another proposal. */
+export async function abandonUnfundedContract(actor: Actor, contractId: string) {
+  const db = getDatabase();
+  const conn = await db.connect();
+  try {
+    await conn.query("begin");
+    const { rows } = await conn.query<{ client_id: string; status: string }>("select client_id, status from contracts where id = $1 for update", [contractId]);
+    const contract = rows[0];
+    if (!contract) throw new AppError("CONTRACT_NOT_FOUND", "Contract not found.", 404);
+    if (contract.client_id !== actor.profileId) throw new AppError("FORBIDDEN", "Only the client can abandon this contract.", 403);
+    if (contract.status !== "funding_pending") throw new AppError("CONTRACT_FUNDED", "Only an unfunded contract can be abandoned. Use cancel for a funded escrow.", 409);
+    const signed = await conn.query("select 1 from chain_actions a join chain_signatures s on s.chain_action_id = a.id where a.contract_id = $1 limit 1", [contractId]);
+    if (signed.rowCount) throw new AppError("FUNDING_IN_FLIGHT", "A funding transaction was already submitted. Wait for it to finalize or expire.", 409);
+    await conn.query("delete from chain_actions where contract_id = $1", [contractId]);
+    await conn.query("delete from contracts where id = $1", [contractId]);
+    await conn.query("commit");
+  } catch (error) {
+    await conn.query("rollback");
+    throw error;
+  } finally {
+    conn.release();
+  }
+  return { id: contractId, abandoned: true };
+}

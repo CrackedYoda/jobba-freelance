@@ -19,7 +19,7 @@ if (publicEnv.reownProjectId) {
       name: "Jobba Freelance",
       description: "Freelance work settled through USDC escrow on Solana.",
       url: publicEnv.appUrl,
-      icons: [`${publicEnv.appUrl}/icon.png`],
+      icons: [`${publicEnv.appUrl}/icon.svg`],
     },
     features: {
       analytics: false,

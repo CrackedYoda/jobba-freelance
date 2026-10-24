@@ -16,7 +16,7 @@ export default async function AdminDisputesPage() {
     <>
       <SiteHeader active="admin" />
       <main className="shell pageSection">
-        <header className="dashboardHeader"><div><span className="eyebrow">Escrow operations</span><h1>Resolve disputes with a clear <em>audit trail.</em></h1><p className="lead">Review contract terms and submitted evidence before preparing an irreversible devnet settlement.</p></div></header>
+        <header className="dashboardHeader"><div><span className="eyebrow">Escrow operations</span><h1>Resolve disputes with a clear <em>audit trail.</em></h1><p className="lead">Review contract terms and submitted evidence before preparing an irreversible on-chain settlement.</p></div></header>
         <AdminDisputeList />
       </main>
       <SiteFooter />

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 
 import { Logo } from "@/components/brand/logo";
@@ -18,7 +19,8 @@ export default async function ConnectPage() {
           <h1>Your wallet is your account.</h1>
           <p>Connecting shows us your public key. Signing a one-time message proves you own it — no transaction, no fee, no password.</p>
         </div>
-        <p className="connectNote">Devnet build. Switching wallet, account or cluster signs you out and asks for a fresh signature.</p>
+        <Image className="connectArt" src="/illustrations/wallet.svg" alt="" width={320} height={220} unoptimized />
+        <p className="connectNote">Switching wallet, account or cluster signs you out and asks for a fresh signature.</p>
       </aside>
       <main className="connectMain"><ConnectFlow initiallyAuthenticated={viewer.authenticated} /></main>
     </div>

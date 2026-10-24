@@ -15,6 +15,16 @@ export const createProjectSchema = z.object({
   status: z.enum(["draft", "open"]).default("open"),
 }).strict();
 
+export const updateProjectSchema = z.object({
+  title: z.string().trim().min(3).max(160).optional(),
+  description: z.string().trim().min(20).max(10_000).optional(),
+  category: z.string().trim().min(1).max(80).optional(),
+  budgetAtomic: atomicAmount.optional(),
+  deliveryDays: z.number().int().min(1).max(365).optional(),
+  skillIds: z.array(uuid).max(20).transform((ids) => [...new Set(ids)]).optional(),
+  status: z.enum(["draft", "open", "cancelled"]).optional(),
+}).strict();
+
 export const listProjectsSchema = z.object({
   cursor: z.string().max(512).optional(),
   limit: z.coerce.number().int().min(1).max(50).default(20),
@@ -29,5 +39,6 @@ export const listProjectsSchema = z.object({
 });
 
 export const projectIdSchema = uuid;
+export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type ListProjectsInput = z.infer<typeof listProjectsSchema>;

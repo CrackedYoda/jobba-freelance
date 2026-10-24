@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Briefcase, CircleDollarSign, Inbox, Vault } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -17,10 +18,10 @@ export default async function ClientDashboardPage() {
     <DashboardShell viewer={viewer} active="client">
       <header className="dashboardHeader"><div><p className="eyebrow">Client workspace</p><h1>Keep projects <em>moving.</em></h1></div><Link className="button primary" href="/projects/new">Post a project</Link></header>
       <section className="statGrid" aria-label="Summary">
-        <article><span>Open projects</span><strong>{data.openProjects}</strong></article>
-        <article><span>Active contracts</span><strong>{data.activeContracts}</strong></article>
-        <article><span>Proposals to review</span><strong>{data.pendingProposals}</strong></article>
-        <article><span>Protected in escrow</span><strong className="mono">{data.escrowedUsdc} USDC</strong></article>
+        <article><span className="statLabel"><Briefcase size={18} aria-hidden="true" />Open projects</span><strong>{data.openProjects}</strong></article>
+        <article><span className="statLabel"><Vault size={18} aria-hidden="true" />Active contracts</span><strong>{data.activeContracts}</strong></article>
+        <article><span className="statLabel"><Inbox size={18} aria-hidden="true" />Proposals to review</span><strong>{data.pendingProposals}</strong></article>
+        <article><span className="statLabel"><CircleDollarSign size={18} aria-hidden="true" />Protected in escrow</span><strong className="mono">{data.escrowedUsdc} USDC</strong></article>
       </section>
       <section className="dashboardSection">
         <div className="sectionHeading"><div><p className="eyebrow">Contracts</p><h2>Active and past work</h2></div></div>

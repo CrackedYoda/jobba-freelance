@@ -1,10 +1,11 @@
 "use client";
 
+import { BadgeCheck, CircleDollarSign, Handshake, Lock, PenSquare, Scale, Send, ShieldCheck, UserRound, Wallet, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
 const demoSteps = [
-  { label: "Funded", chip: "funded", bar: 25, text: "The client locked 2,350 USDC in the program-owned vault. The freelancer can see it before accepting." },
+  { label: "Funded", chip: "funded", bar: 25, text: "The client locked the full amount in the program-owned vault. The freelancer can see it before accepting." },
   { label: "Active", chip: "active", bar: 50, text: "The freelancer accepted the funded contract. Work begins and chat opens for both parties." },
   { label: "Submitted", chip: "submitted", bar: 75, text: "Deliverables are submitted. The client reviews them; release is one signature away." },
   { label: "Released", chip: "released", bar: 100, text: "The client released payment. The freelancer received the amount minus the platform fee, with an Explorer link." },
@@ -41,16 +42,16 @@ export function LandingHero() {
           <Link className="button primary big" href={c.primary[1]}>{c.primary[0]}</Link>
           <Link className="button ghost big" href={c.secondary[1]}>{c.secondary[0]}</Link>
         </div>
-        <div className="trustRow" aria-label="Product benefits"><span>Program-owned USDC vault</span><span>Sign in with your wallet</span><span>Admin-reviewed disputes</span></div>
+        <div className="trustRow" aria-label="Product benefits"><span><Lock size={14} aria-hidden="true" />Program-owned USDC vault</span><span><Wallet size={14} aria-hidden="true" />Sign in with your wallet</span><span><Scale size={14} aria-hidden="true" />Admin-reviewed disputes</span></div>
       </div>
       <aside aria-label="Escrow lifecycle preview">
-        <div className="demoHead mono"><span>ESCROW · DEVNET</span><span>8fT3…kQ2v</span></div>
+        <div className="demoHead mono"><span><Lock size={12} aria-hidden="true" /> ESCROW · SOLANA</span><span>Program-owned vault</span></div>
         <div className="escrowDemo">
-          <div className="demoTitle"><div><small>Contract</small><strong>Redesign a Solana commerce dashboard</strong></div><span className={`chip ${s.chip}`}><i />{s.label}</span></div>
+          <div className="demoTitle"><div><small>Example contract</small><strong>Website redesign, fixed price</strong></div><span className={`chip ${s.chip}`}><i />{s.label}</span></div>
           <p className="amount">2,350.00 <small>USDC</small></p>
           <div className="meter"><i style={{ width: `${s.bar}%` }} /></div>
           <p className="demoText">{s.text}</p>
-          <div className="cardMeta"><span>Client · Northstar Labs</span><span>Freelancer · Amara O.</span></div>
+          <div className="cardMeta"><span><UserRound size={13} aria-hidden="true" /> Client</span><span><UserRound size={13} aria-hidden="true" /> Freelancer</span></div>
         </div>
         <div className="escrowTabs" role="tablist" aria-label="Escrow lifecycle">
           {demoSteps.map((d, i) => (
@@ -62,20 +63,20 @@ export function LandingHero() {
   );
 }
 
-const flows = {
+const flows: Record<"hire" | "work", [string, string, string, LucideIcon][]> = {
   hire: [
-    ["Post", "Describe it", "Outcome, skills, fixed USDC budget and delivery target."],
-    ["Choose", "Pick a proposal", "Compare focused proposals and select a freelancer."],
-    ["Fund", "Lock the USDC", "One signature moves the agreed amount into the vault."],
-    ["Release", "Approve the work", "Review the delivery, then release — or open a dispute."],
+    ["Post", "Describe it", "Outcome, skills, fixed USDC budget and delivery target.", PenSquare],
+    ["Choose", "Pick a proposal", "Compare focused proposals and select a freelancer.", Handshake],
+    ["Fund", "Lock the USDC", "One signature moves the agreed amount into the vault.", Lock],
+    ["Release", "Approve the work", "Review the delivery, then release — or open a dispute.", BadgeCheck],
   ],
   work: [
-    ["Profile", "Show your craft", "Skills, rate, availability and portfolio links."],
-    ["Propose", "Send a proposal", "Your price and approach, no bidding credits."],
-    ["Accept", "See it funded", "Accept only after the vault shows the full amount."],
-    ["Get paid", "Deliver and release", "Submit work; USDC lands in your wallet on release."],
+    ["Profile", "Show your craft", "Skills, rate, availability and portfolio links.", UserRound],
+    ["Propose", "Send a proposal", "Your price and approach, no bidding credits.", Send],
+    ["Accept", "See it funded", "Accept only after the vault shows the full amount.", ShieldCheck],
+    ["Get paid", "Deliver and release", "Submit work; USDC lands in your wallet on release.", CircleDollarSign],
   ],
-} as const;
+};
 
 export function HowItWorks() {
   const [side, setSide] = useState<"hire" | "work">("hire");
@@ -89,8 +90,8 @@ export function HowItWorks() {
         </div>
       </div>
       <div className="stepGrid">
-        {flows[side].map(([tag, title, body], i) => (
-          <article className="step" key={title}><div className="stepTop"><span className="mono">0{i + 1}</span><b>{tag}</b></div><h3>{title}</h3><p>{body}</p></article>
+        {flows[side].map(([tag, title, body, Icon], i) => (
+          <article className="step" key={title}><div className="stepTop"><span className="iconTile soft"><Icon size={20} aria-hidden="true" /></span><b>{tag}</b></div><span className="mono stepNo">0{i + 1}</span><h3>{title}</h3><p>{body}</p></article>
         ))}
       </div>
     </section>

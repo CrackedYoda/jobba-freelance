@@ -24,6 +24,16 @@ export function ProposalList({ proposals, canSelect }: { proposals: ProposalSumm
     }
   }
 
+  async function reject(proposalId: string) {
+    if (!window.confirm("Decline this proposal? The freelancer will see it as rejected.")) return;
+    setBusy(proposalId); setError(undefined);
+    const response = await fetch(`/api/v1/proposals/${proposalId}/reject`, { method: "POST" });
+    const body = await response.json().catch(() => ({})) as { error?: { message?: string } };
+    setBusy(undefined);
+    if (!response.ok) { setError(body.error?.message ?? "Could not decline the proposal."); return; }
+    router.refresh();
+  }
+
   if (!proposals.length) return <p className="muted">No proposals yet.</p>;
   return (
     <div className="proposalStack">
@@ -39,7 +49,12 @@ export function ProposalList({ proposals, canSelect }: { proposals: ProposalSumm
           <footer>
             <span><b className="mono">{proposal.amountUsdc} USDC</b> · {proposal.deliveryDays} days</span>
             {proposal.contractId ? <Link className="button ghost compactButton" href={`/contracts/${proposal.contractId}`}>Open contract</Link>
-              : canSelect && proposal.status === "pending" ? <button className="button lime compactButton" type="button" disabled={busy !== undefined} onClick={() => void select(proposal.id)}>{busy === proposal.id ? "Preparing…" : "Select & fund"}</button> : null}
+              : canSelect && proposal.status === "pending" ? (
+                <span className="pillRow">
+                  <button className="button ghost compactButton" type="button" disabled={busy !== undefined} onClick={() => void reject(proposal.id)}>Decline</button>
+                  <button className="button lime compactButton" type="button" disabled={busy !== undefined} onClick={() => void select(proposal.id)}>{busy === proposal.id ? "Preparing…" : "Select & fund"}</button>
+                </span>
+              ) : null}
           </footer>
         </article>
       ))}

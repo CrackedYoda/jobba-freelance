@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 
 import { ProjectCard } from "@/components/marketplace/project-card";
@@ -53,7 +54,7 @@ export default async function ProjectsPage({ searchParams }: { searchParams: Pro
           </aside>
           <div className="listingStack">
             {projects.map((project) => <ProjectCard project={project} key={project.id} />)}
-            {projects.length === 0 ? <div className="emptyState"><h2>No projects match these filters</h2><p>Try a wider budget or fewer skills.</p><Link className="button ghost" href="/projects">Clear filters</Link></div> : null}
+            {projects.length === 0 ? <div className="emptyState"><Image src="/illustrations/empty-projects.svg" alt="" width={240} height={170} unoptimized /><h2>{Object.values(filters).some(Boolean) ? "No projects match these filters" : "No open projects yet"}</h2><p>{Object.values(filters).some(Boolean) ? "Try a wider budget or fewer skills." : "Be the first to post one. Freelancers can propose as soon as it is published."}</p><div className="pillRow" style={{ justifyContent: "center" }}>{Object.values(filters).some(Boolean) ? <Link className="button ghost" href="/projects">Clear filters</Link> : null}<Link className="button primary" href="/projects/new">Post a project</Link></div></div> : null}
           </div>
         </div>
       </main>

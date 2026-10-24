@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 
 import { SiteFooter } from "@/components/marketplace/site-footer";
 import { SiteHeader } from "@/components/marketplace/site-header";
+import { ProjectOwnerActions } from "@/features/projects/owner-actions";
 import { ProposalComposer } from "@/features/proposals/proposal-composer";
 import { ProposalList } from "@/features/proposals/proposal-list";
 import { findMyProposal, getProject, getViewer, listProjectProposals, shortKey } from "@/server/marketplace/service";
@@ -12,7 +13,8 @@ export const metadata: Metadata = { title: "Project details | Jobba" };
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ projectId: string }> }) {
   const { projectId } = await params;
-  const [project, viewer] = await Promise.all([getProject(projectId), getViewer()]);
+  const viewer = await getViewer();
+  const project = await getProject(projectId, viewer.profileId);
   if (!project) notFound();
   const isOwner = viewer.profileId === project.clientId;
   const isFreelancer = viewer.roles.includes("freelancer");
@@ -46,11 +48,11 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <span className="mono muted">{shortKey(project.client.wallet)}</span>
             </section>
             <section className="escrowPromise"><strong>How payment works</strong><p>If your proposal is selected, the client funds your price into escrow first. You accept only after you can see the funded vault.</p></section>
-            {isOwner ? <section className="workspacePanel"><h2>Proposals ({proposals.length})</h2><ProposalList proposals={proposals} canSelect={project.status === "open"} /></section> : null}
+            {isOwner ? <section className="workspacePanel"><h2>Proposals ({proposals.length})</h2><ProposalList proposals={proposals} canSelect={project.status === "open" && !project.contractId} /></section> : null}
           </article>
           <aside className="detailRail">
             {isOwner ? (
-              <div className="composerBox"><h2>Your project</h2><p className="muted">Select a proposal to create the contract and fund escrow. Funding needs one wallet signature.</p><dl className="kv"><div><dt>Proposals</dt><dd>{project.proposals}</dd></div><div><dt>Budget</dt><dd className="mono">{project.budgetUsdc} USDC</dd></div></dl></div>
+              <div className="composerBox"><h2>Your project</h2><p className="muted">{project.status === "draft" ? "This draft is only visible to you. Publish it to start receiving proposals." : "Select a proposal to create the contract and fund escrow. Funding needs one wallet signature."}</p><dl className="kv"><div><dt>Proposals</dt><dd>{project.proposals}</dd></div><div><dt>Budget</dt><dd className="mono">{project.budgetUsdc} USDC</dd></div></dl>{project.contractId ? <Link className="button primary wide" href={`/contracts/${project.contractId}`}>Open contract</Link> : null}<ProjectOwnerActions projectId={project.id} status={project.status} hasContract={Boolean(project.contractId)} /></div>
             ) : !viewer.authenticated ? (
               <div className="composerBox"><h2>Send a proposal</h2><p className="muted">Connect a wallet and sign in to propose on this project.</p><Link className="button primary wide" href="/connect">Connect wallet</Link></div>
             ) : !isFreelancer ? (

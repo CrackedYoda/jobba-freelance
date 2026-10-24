@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CircleDollarSign, FileClock, Gauge, Vault } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -17,10 +18,10 @@ export default async function FreelancerDashboardPage() {
     <DashboardShell viewer={viewer} active="freelancer">
       <header className="dashboardHeader"><div><p className="eyebrow">Freelancer workspace</p><h1>Work worth <em>winning.</em></h1></div><Link className="button primary" href="/projects">Find projects</Link></header>
       <section className="statGrid" aria-label="Summary">
-        <article><span>Active contracts</span><strong>{data.activeContracts}</strong></article>
-        <article><span>Pending proposals</span><strong>{data.pendingProposals}</strong></article>
-        <article><span>Profile strength</span><strong>{data.profileStrength}%</strong></article>
-        <article><span>Earned (released)</span><strong className="mono">{data.earnedUsdc} USDC</strong></article>
+        <article><span className="statLabel"><Vault size={18} aria-hidden="true" />Active contracts</span><strong>{data.activeContracts}</strong></article>
+        <article><span className="statLabel"><FileClock size={18} aria-hidden="true" />Pending proposals</span><strong>{data.pendingProposals}</strong></article>
+        <article><span className="statLabel"><Gauge size={18} aria-hidden="true" />Profile strength</span><strong>{data.profileStrength}%</strong></article>
+        <article><span className="statLabel"><CircleDollarSign size={18} aria-hidden="true" />Earned (released)</span><strong className="mono">{data.earnedUsdc} USDC</strong></article>
       </section>
       <section className="dashboardSection">
         <div className="sectionHeading"><div><p className="eyebrow">Contracts</p><h2>Your contracts</h2></div></div>

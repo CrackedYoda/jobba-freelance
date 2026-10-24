@@ -14,6 +14,7 @@ export const updateProfileSchema = z.object({
   location: z.string().trim().min(1).max(120).nullable(),
   bio: z.string().trim().max(2000).nullable(),
   hourlyRateAtomic: atomicAmount.nullable(),
+  avatarUrl: z.string().url().max(2048).refine((value) => new URL(value).protocol === "https:", "Avatar must be an HTTPS image URL.").nullable().optional(),
   availability: z.enum(["available", "limited", "unavailable"]),
   roles: z.array(role).min(1).max(2).transform((values) => [...new Set(values)]),
   skillIds: z.array(z.string().uuid()).max(20).transform((values) => [...new Set(values)]),
