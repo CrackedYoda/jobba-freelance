@@ -15,3 +15,17 @@ on conflict (id) do update set
 insert into public.reconciliation_cursors (cluster, last_slot)
 values ('devnet', 0)
 on conflict (cluster) do nothing;
+
+insert into public.skills (slug, name, category) values
+  ('product-design', 'Product design', 'Design'),
+  ('figma', 'Figma', 'Design'),
+  ('design-systems', 'Design systems', 'Design'),
+  ('user-research', 'User research', 'Design'),
+  ('typescript', 'TypeScript', 'Development'),
+  ('postgresql', 'PostgreSQL', 'Development'),
+  ('python', 'Python', 'Data & AI'),
+  ('sql', 'SQL', 'Data & AI'),
+  ('copywriting', 'Copywriting', 'Writing'),
+  ('community', 'Community', 'Marketing'),
+  ('motion-design', 'Motion design', 'Video & animation')
+on conflict (slug) do nothing;

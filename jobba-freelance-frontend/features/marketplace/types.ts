@@ -4,12 +4,16 @@ export type ProjectSummary = {
   summary: string;
   description: string;
   category: string;
+  status: string;
   skills: string[];
+  budgetAtomic: string;
   budgetUsdc: string;
   deliveryDays: number;
   proposals: number;
   postedAt: string;
-  client: { name: string; location: string; projectsFunded: number; verified: boolean };
+  createdAt: string;
+  clientId: string;
+  client: { name: string; location: string; projectsFunded: number; wallet: string };
 };
 
 export type FreelancerProfile = {
@@ -23,6 +27,7 @@ export type FreelancerProfile = {
   skills: string[];
   completedContracts: number;
   earnedUsdc: string;
+  wallet: string;
   portfolio: { label: string; url: string }[];
 };
 
@@ -30,9 +35,41 @@ export type ProposalSummary = {
   id: string;
   projectId: string;
   projectTitle: string;
-  freelancer: Pick<FreelancerProfile, "id" | "name" | "headline" | "completedContracts">;
+  freelancer: { id: string; name: string; headline: string; completedContracts: number };
+  amountAtomic: string;
   amountUsdc: string;
   deliveryDays: number;
   coverLetter: string;
+  portfolioUrl: string | null;
   status: "pending" | "accepted" | "rejected" | "withdrawn";
+  createdAt: string;
+  contractId: string | null;
 };
+
+export type ContractSummary = {
+  id: string;
+  projectId: string;
+  projectTitle: string;
+  status: string;
+  amountAtomic: string;
+  amountUsdc: string;
+  counterpart: string;
+  role: "client" | "freelancer";
+  updatedAt: string;
+};
+
+export type ContractDetail = ContractSummary & {
+  feeAtomic: string;
+  currencyMint: string;
+  termsHash: string;
+  escrowPda: string | null;
+  client: { id: string; name: string; wallet: string };
+  freelancer: { id: string; name: string; wallet: string };
+  conversationId: string | null;
+  description: string;
+  deliveryDays: number;
+  disputeId: string | null;
+  createdAt: string;
+};
+
+export type Viewer = { authenticated: boolean; walletAddress?: string; profileId?: string; displayName?: string; roles: string[] };

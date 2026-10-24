@@ -4,7 +4,10 @@ import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import type { Provider } from "@reown/appkit-adapter-solana/react";
 import { Transaction } from "@solana/web3.js";
 import { useEffect, useState } from "react";
+import { fromAtomic } from "@/lib/domain/money";
 import type { EscrowAction, UnsignedEscrowTransaction } from "@/lib/solana/types";
+
+const tone: Partial<Record<EscrowAction, string>> = { fund: "lime", release: "green", cancel: "dangerButton", refund: "dangerButton" };
 
 const labels: Record<EscrowAction, string> = { fund: "Fund escrow", accept: "Accept contract", submit: "Submit work", release: "Approve and release", cancel: "Cancel and refund", open_dispute: "Open dispute", refund: "Refund client", award: "Award freelancer" };
 
@@ -60,9 +63,9 @@ export function EscrowActionPanel({ contractId }: { contractId: string }) {
     finally { setBusy(false); }
   }
 
-  return <section className="workspacePanel actionPanel" aria-labelledby="escrow-actions-heading"><h2 id="escrow-actions-heading">Next escrow action</h2>
-    <div>{actions.filter((action) => action !== "open_dispute").length ? actions.filter((action) => action !== "open_dispute").map((action) => <button className="button secondary" key={action} type="button" disabled={busy} onClick={() => void prepare(action)}>{labels[action]}</button>) : <p>No ordinary wallet action is available in the current state.</p>}</div>
-    {prepared ? <div role="status"><p>Review before signing: {labels[prepared.action.kind]} for {prepared.action.amountAtomic} atomic USDC.</p><p>Program: {prepared.action.programId}<br />Mint: {prepared.action.mint}<br />Escrow: {prepared.action.escrowPda}</p><button type="button" disabled={busy || !walletProvider} onClick={() => void signAndSubmit()}>Sign and submit</button></div> : null}
+  return <section className="workspacePanel actionPanel" aria-labelledby="escrow-actions-heading"><span className="eyebrow">Escrow</span><h2 id="escrow-actions-heading">Next action</h2>
+    <div>{actions.filter((action) => action !== "open_dispute").length ? actions.filter((action) => action !== "open_dispute").map((action) => <button className={`button ${tone[action] ?? "primary"}`} key={action} type="button" disabled={busy} onClick={() => void prepare(action)}>{labels[action]}</button>) : <p>No ordinary wallet action is available in the current state.</p>}</div>
+    {prepared ? <div role="status"><div className="transactionReview"><strong>Review before signing</strong><p>{labels[prepared.action.kind]} · {fromAtomic(BigInt(prepared.action.amountAtomic))} USDC on {prepared.action.cluster}</p><p className="mono">Escrow {prepared.action.escrowPda}</p><p className="mono">Mint {prepared.action.mint}</p><p className="muted">Network fee is paid in SOL by {prepared.feePayer.slice(0, 4)}…{prepared.feePayer.slice(-4)}.</p><button className="button primary" type="button" disabled={busy || !walletProvider} onClick={() => void signAndSubmit()}>{busy ? "Waiting for wallet…" : "Sign and submit"}</button></div></div> : null}
     {message ? <p className="formNotice" role="status">{message}</p> : null}
   </section>;
 }

@@ -6,6 +6,7 @@ export const createProposalSchema = z.object({
   coverLetter: z.string().trim().min(20).max(5_000),
   amountAtomic: atomicAmount,
   estimatedDays: z.number().int().min(1).max(3_650),
+  portfolioUrl: z.string().url().max(2048).nullish(),
 }).strict();
 
 export const listProposalsSchema = z.object({

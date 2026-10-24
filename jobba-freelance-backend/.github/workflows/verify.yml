@@ -1,0 +1,35 @@
+name: Verify backend
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p freelance_escrow --lib
+
+  database:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: jobba_freelance
+          POSTGRES_USER: jobba
+          POSTGRES_PASSWORD: jobba
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd "pg_isready -U jobba -d jobba_freelance"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgres://jobba:jobba@localhost:5434/jobba_freelance
+    steps:
+      - uses: actions/checkout@v4
+      - run: for file in database/migrations/*.sql; do psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f "$file"; done

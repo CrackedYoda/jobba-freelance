@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { WalletSessionGuard } from "@/features/auth/wallet-sign-in";
 import { AppKitProvider } from "@/providers/appkit-provider";
 import "./styles.css";
 
@@ -10,7 +11,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body><AppKitProvider>{children}</AppKitProvider></body>
+      <body><AppKitProvider><WalletSessionGuard />{children}</AppKitProvider></body>
     </html>
   );
 }

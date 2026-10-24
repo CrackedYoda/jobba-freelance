@@ -84,6 +84,11 @@ async function findOrCreateProfile(db: Database, walletAddress: string): Promise
      returning id`,
     [walletAddress, `Wallet ${walletAddress.slice(0, 4)}…${walletAddress.slice(-4)}`],
   );
+  const env = getServerEnv();
+  const admins = new Set([...(env.ADMIN_WALLETS?.split(",") ?? []), env.SOLANA_ADMIN_WALLET ?? ""].map((value) => value.trim()).filter(Boolean));
+  if (admins.has(walletAddress)) {
+    await db.query("insert into profile_roles (profile_id, role) values ($1, 'admin') on conflict do nothing", [rows[0].id]);
+  }
   return rows[0].id;
 }
 

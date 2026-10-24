@@ -6,16 +6,23 @@ import type { Cursor } from "@/server/db/cursor";
 
 const select = `
   select pr.id, pr.project_id, pr.freelancer_id, pr.cover_letter, pr.amount_atomic, pr.estimated_days, pr.status,
-         pr.version, pr.created_at, pr.updated_at,
+         pr.version, pr.portfolio_url, pr.created_at, pr.updated_at,
          json_build_object('id', f.id, 'display_name', f.display_name, 'avatar_url', f.avatar_url, 'availability', f.availability) as freelancer
     from proposals pr join profiles f on f.id = pr.freelancer_id`;
 
 export async function insertProposal(db: Database, projectId: string, freelancerId: string, input: CreateProposalInput) {
+  // A withdrawn proposal may be re-submitted; any other existing proposal is a conflict.
   const { rows } = await db.query<{ id: string }>(
-    `insert into proposals (project_id, freelancer_id, cover_letter, amount_atomic, estimated_days)
-     values ($1,$2,$3,$4,$5) returning id`,
-    [projectId, freelancerId, input.coverLetter, input.amountAtomic, input.estimatedDays],
+    `insert into proposals (project_id, freelancer_id, cover_letter, amount_atomic, estimated_days, portfolio_url)
+     values ($1,$2,$3,$4,$5,$6)
+     on conflict (project_id, freelancer_id) do update
+       set cover_letter = excluded.cover_letter, amount_atomic = excluded.amount_atomic, estimated_days = excluded.estimated_days,
+           portfolio_url = excluded.portfolio_url, status = 'pending', version = proposals.version + 1
+       where proposals.status = 'withdrawn'
+     returning id`,
+    [projectId, freelancerId, input.coverLetter, input.amountAtomic, input.estimatedDays, input.portfolioUrl ?? null],
   );
+  if (!rows[0]) throw Object.assign(new Error("duplicate proposal"), { code: "23505" });
   return getProposalById(db, rows[0].id);
 }
 

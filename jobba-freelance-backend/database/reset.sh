@@ -6,3 +6,4 @@ PSQL=(docker exec -i jobba-freelance-db psql -v ON_ERROR_STOP=1 -U jobba -d jobb
 "${PSQL[@]}" -c 'drop schema public cascade; create schema public;'
 for f in migrations/*.sql; do "${PSQL[@]}" < "$f"; done
 "${PSQL[@]}" < seed.sql
+if [[ "${1:-}" == "--demo" ]]; then "${PSQL[@]}" < demo.sql; fi

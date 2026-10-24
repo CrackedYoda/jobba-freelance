@@ -19,6 +19,8 @@ const serverEnvSchema = z.object({
   SOLANA_RPC_URL: optionalUrl,
   SOLANA_PROGRAM_ID: optionalPublicKey,
   SOLANA_USDC_MINT: optionalPublicKey,
+  ADMIN_WALLETS: z.preprocess((value) => value === "" ? undefined : value, z.string().optional()),
+  SOLANA_ADMIN_WALLET: optionalPublicKey,
   DATABASE_URL: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
 });
 

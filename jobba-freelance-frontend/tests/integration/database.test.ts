@@ -21,9 +21,10 @@ async function load() {
 let ctx: Awaited<ReturnType<typeof load>>;
 
 async function wipe() {
-  await ctx.db.query("delete from auth_nonces");
-  await ctx.db.query("delete from projects");
-  await ctx.db.query("delete from profiles where wallet_public_key = any($1)", [[client, freelancer]]);
+  const wallets = [client, freelancer];
+  await ctx.db.query("delete from auth_nonces where wallet_public_key = any($1)", [wallets]);
+  await ctx.db.query("delete from projects where client_id in (select id from profiles where wallet_public_key = any($1))", [wallets]);
+  await ctx.db.query("delete from profiles where wallet_public_key = any($1)", [wallets]);
 }
 
 beforeAll(async () => { ctx = await load(); await wipe(); });
@@ -69,7 +70,7 @@ describe("projects and proposals", () => {
     const c = (await ctx.profiles.findActorByWallet(ctx.db, client))!;
     const f = (await ctx.profiles.findActorByWallet(ctx.db, freelancer))!;
     const skill = (await ctx.db.query("select id from skills limit 1")).rows[0].id;
-    const input = (title: string) => ({ title, description: "D".repeat(40), category: "web", budgetAtomic: "5000000", status: "open", skillIds: [skill] }) as never;
+    const input = (title: string) => ({ title, description: "D".repeat(40), category: "web", budgetAtomic: "5000000", deliveryDays: 21, status: "open", skillIds: [skill] }) as never;
 
     const p1 = await ctx.projects.insertProject(ctx.db, c.profileId, mint, input("First project"));
     const p2 = await ctx.projects.insertProject(ctx.db, c.profileId, mint, input("Second project"));
@@ -83,7 +84,7 @@ describe("projects and proposals", () => {
     expect(page2[0].id).toBe(p1.id);
     expect(await ctx.projects.listProjects(ctx.db, { limit: 5, search: "First" } as never)).toHaveLength(1);
     expect(await ctx.projects.listProjects(ctx.db, { limit: 5, search: "100%" } as never)).toHaveLength(0);
-    expect(await ctx.projects.listProjects(ctx.db, { limit: 5, minBudgetAtomic: "9000000" } as never)).toHaveLength(0);
+    expect(await ctx.projects.listProjects(ctx.db, { limit: 5, minBudgetAtomic: "9000000000000" } as never)).toHaveLength(0);
 
     const proposal = { coverLetter: "I can do this work well and fast.", amountAtomic: "4000000", estimatedDays: 3 } as never;
     const created = await ctx.proposals.insertProposal(ctx.db, p1.id, f.profileId, proposal);
@@ -94,6 +95,11 @@ describe("projects and proposals", () => {
     expect(await ctx.proposals.withdrawPendingProposal(ctx.db, created.id, c.profileId)).toBeNull();
     expect((await ctx.proposals.withdrawPendingProposal(ctx.db, created.id, f.profileId))?.status).toBe("withdrawn");
     expect(await ctx.proposals.withdrawPendingProposal(ctx.db, created.id, f.profileId)).toBeNull();
+
+    const revived = await ctx.proposals.insertProposal(ctx.db, p1.id, f.profileId, { ...(proposal as object), amountAtomic: "3500000" } as never);
+    expect(revived.id).toBe(created.id);
+    expect(revived.status).toBe("pending");
+    expect(String(revived.amount_atomic)).toBe("3500000");
   });
 });
 

@@ -10,6 +10,7 @@ export const createProjectSchema = z.object({
   description: z.string().trim().min(20).max(10_000),
   category: z.string().trim().min(1).max(80),
   budgetAtomic: atomicAmount,
+  deliveryDays: z.number().int().min(1).max(365).default(30),
   skillIds: z.array(uuid).max(20).default([]).transform((ids) => [...new Set(ids)]),
   status: z.enum(["draft", "open"]).default("open"),
 }).strict();

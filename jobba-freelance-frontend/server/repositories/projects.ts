@@ -5,7 +5,10 @@ import type { Database } from "@/server/db/client";
 import type { Cursor } from "@/server/db/cursor";
 
 const projectSelect = `
-  select p.id, p.client_id, p.title, p.description, p.category, p.budget_atomic, p.currency_mint, p.status,
+  select p.id, p.client_id, p.title, p.description, p.category, p.budget_atomic, p.delivery_days,
+         (select count(*)::int from proposals x where x.project_id = p.id and x.status in ('pending','accepted')) as proposal_count,
+         (select count(*)::int from contracts k where k.client_id = p.client_id and k.status in ('funded','active','submitted','released','resolved')) as client_funded_count,
+         c.location as client_location, c.wallet_public_key as client_wallet, p.currency_mint, p.status,
          p.version, p.published_at, p.created_at, p.updated_at,
          json_build_object('id', c.id, 'display_name', c.display_name, 'avatar_url', c.avatar_url) as client,
          coalesce((select json_agg(json_build_object('skill', json_build_object('id', s.id, 'slug', s.slug, 'name', s.name, 'category', s.category)))
@@ -17,9 +20,9 @@ export async function insertProject(db: Database, clientId: string, mint: string
   try {
     await conn.query("begin");
     const { rows } = await conn.query<{ id: string }>(
-      `insert into projects (client_id, title, description, category, budget_atomic, currency_mint, status, published_at)
-       values ($1,$2,$3,$4,$5,$6,$7,$8) returning id`,
-      [clientId, input.title, input.description, input.category, input.budgetAtomic, mint, input.status,
+      `insert into projects (client_id, title, description, category, budget_atomic, delivery_days, currency_mint, status, published_at)
+       values ($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id`,
+      [clientId, input.title, input.description, input.category, input.budgetAtomic, input.deliveryDays, mint, input.status,
         input.status === "open" ? new Date().toISOString() : null],
     );
     const id = rows[0].id;
