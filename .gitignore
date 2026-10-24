@@ -17,3 +17,6 @@ test-results/
 .env.*
 .env*.local
 !.env.example
+
+# Local documentation
+*.md
