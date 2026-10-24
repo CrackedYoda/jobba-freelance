@@ -10,7 +10,7 @@ import { appKitNetwork } from "@/lib/solana/network";
 export const isWalletConfigured = Boolean(publicEnv.reownProjectId);
 
 if (publicEnv.reownProjectId) {
-  createAppKit({
+  const appKit = createAppKit({
     adapters: [new SolanaAdapter()],
     networks: [appKitNetwork],
     defaultNetwork: appKitNetwork,
@@ -27,6 +27,12 @@ if (publicEnv.reownProjectId) {
       socials: [],
     },
     themeMode: "light",
+  });
+
+  appKit.subscribeRemoteFeatures((features) => {
+    if (features?.reownBranding) {
+      appKit.updateRemoteFeatures({ ...features, reownBranding: false });
+    }
   });
 }
 
