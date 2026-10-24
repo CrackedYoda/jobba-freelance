@@ -17,7 +17,7 @@ export function ResumeImport({ current, onDraft }: { current: { fileName: string
     try {
       const form = new FormData(); form.set("file", file);
       const response = await fetch("/api/v1/onboarding/resume", { method: "POST", body: form });
-      const body = await response.json().catch(() => ({})) as { data?: { draft: ResumeDraft | null; fileName: string; autofill: boolean }; error?: { message?: string } };
+      const body = await response.json().catch(() => ({})) as { data?: { draft: ResumeDraft | null; fileName: string; method: "claude" | "rules" }; error?: { message?: string } };
       if (!response.ok || !body.data) throw new Error(body.error?.message ?? "We couldn't read that résumé.");
       setFileName(body.data.fileName);
       if (!body.data.draft) {

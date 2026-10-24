@@ -3,8 +3,10 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import mammoth from "mammoth";
+import { extractText, getDocumentProxy } from "unpdf";
 import * as z from "zod/v4";
 
+import { parseResumeText } from "@/features/onboarding/parse-resume";
 import { getDatabase } from "@/server/db/client";
 import { AppError } from "@/server/db/errors";
 import type { Actor } from "@/server/repositories/profiles";
@@ -56,20 +58,14 @@ const SYSTEM = [
 ].join(" ");
 
 /** Stores the file, asks Claude for a structured draft, and returns it for the freelancer to review. */
-export async function importResume(actor: Actor, file: File): Promise<{ draft: ResumeDraft | null; fileName: string; autofill: boolean }> {
+export async function importResume(actor: Actor, file: File): Promise<{ draft: ResumeDraft | null; fileName: string; method: "claude" | "rules" }> {
   if (file.size === 0 || file.size > MAX_BYTES) throw new AppError("INVALID_RESUME", "Upload a PDF or Word (.docx) file up to 5 MB.", 400);
   const bytes = Buffer.from(await file.arrayBuffer());
   const type = detect(bytes);
   if (!type) throw new AppError("INVALID_RESUME", "Use a PDF or Word (.docx) file.", 400);
 
-  let document: Anthropic.Beta.BetaContentBlockParam;
-  if (type === PDF) {
-    document = { type: "document", source: { type: "base64", media_type: "application/pdf", data: bytes.toString("base64") }, title: "Résumé" };
-  } else {
-    const text = await mammoth.extractRawText({ buffer: bytes }).then((result) => result.value.trim()).catch(() => "");
-    if (!text) throw new AppError("INVALID_RESUME", "We couldn't read that Word file. Try saving it as a PDF.", 400);
-    document = { type: "document", source: { type: "text", media_type: "text/plain", data: text }, title: "Résumé" };
-  }
+  const text = await documentText(type, bytes);
+  if (type === DOCX && !text) throw new AppError("INVALID_RESUME", "We couldn't read that Word file. Try saving it as a PDF.", 400);
 
   const db = getDatabase();
   const fileName = (file.name || "resume").slice(0, 200);
@@ -79,10 +75,18 @@ export async function importResume(actor: Actor, file: File): Promise<{ draft: R
     [actor.profileId, fileName, type, bytes],
   );
 
-  // The résumé is kept even when automatic fill-in is unavailable.
-  if (!autofillConfigured()) return { draft: null, fileName, autofill: false };
-
   const skills = (await db.query<{ name: string }>("select name::text from skills order by name")).rows.map((row) => row.name);
+
+  // Without a Claude API key, read the résumé with the free rule-based parser.
+  if (!autofillConfigured()) {
+    if (!text) throw new AppError("RESUME_NO_TEXT", "Résumé saved, but it has no readable text (it may be a scanned image). Please fill in your profile by hand.", 422);
+    await db.query("update profile_resumes set extracted_at = now() where profile_id = $1", [actor.profileId]);
+    return { draft: sanitize(parseResumeText(text, skills)), fileName, method: "rules" };
+  }
+
+  const document: Anthropic.Beta.BetaContentBlockParam = type === PDF
+    ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: bytes.toString("base64") }, title: "Résumé" }
+    : { type: "document", source: { type: "text", media_type: "text/plain", data: text }, title: "Résumé" };
   const client = anthropic();
   let response;
   try {
@@ -108,7 +112,19 @@ export async function importResume(actor: Actor, file: File): Promise<{ draft: R
     throw new AppError("RESUME_IMPORT_FAILED", "We couldn't extract details from that file. You can fill in your profile by hand.", 422);
   }
   await db.query("update profile_resumes set extracted_at = now() where profile_id = $1", [actor.profileId]);
-  return { draft: sanitize(response.parsed_output), fileName, autofill: true };
+  return { draft: sanitize(response.parsed_output), fileName, method: "claude" };
+}
+
+async function documentText(type: typeof PDF | typeof DOCX, bytes: Buffer): Promise<string> {
+  try {
+    if (type === DOCX) return (await mammoth.extractRawText({ buffer: bytes })).value.trim();
+    const pdf = await getDocumentProxy(new Uint8Array(bytes));
+    const { text } = await extractText(pdf, { mergePages: true });
+    return text.trim();
+  } catch {
+    if (type === PDF) throw new AppError("INVALID_RESUME", "We couldn't open that PDF. Try exporting it again.", 400);
+    return "";
+  }
 }
 
 const thisYear = () => new Date().getUTCFullYear();
