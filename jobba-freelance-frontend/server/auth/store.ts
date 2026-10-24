@@ -33,9 +33,7 @@ function database(): Database | undefined {
   return getDatabase();
 }
 
-export function createNonce(): string {
-  return randomBytes(18).toString("base64url");
-}
+export { createNonce } from "@/server/auth/message";
 
 export async function saveChallenge(nonce: string, challenge: StoredChallenge): Promise<void> {
   const db = database();

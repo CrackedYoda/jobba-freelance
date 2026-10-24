@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { challengeRequestSchema } from "@/features/auth/schemas";
 import { getServerEnv } from "@/lib/config/env";
 import { assertSameOrigin, invalidRequest, requestOrigin } from "@/server/auth/http";
-import { buildSignInMessage } from "@/server/auth/message";
+import { buildSignInMessage, siwsChainId } from "@/server/auth/message";
 import { getRequestIp, takeRateLimit } from "@/server/auth/rate-limit";
 import { createNonce, saveChallenge } from "@/server/auth/store";
 
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
     address: parsed.data.address,
     statement: env.SIWS_STATEMENT,
     uri: site.origin,
-    chainId: `solana:${env.NEXT_PUBLIC_SOLANA_CLUSTER}`,
+    chainId: siwsChainId(env.NEXT_PUBLIC_SOLANA_CLUSTER),
     nonce,
     issuedAt: now.toISOString(),
     expirationTime: expiresAt.toISOString(),

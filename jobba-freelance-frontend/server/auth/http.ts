@@ -9,7 +9,11 @@ export function isAllowedOrigin(origin: string): boolean {
   const env = getServerEnv();
   let parsed: URL;
   try { parsed = new URL(origin); } catch { return false; }
-  const allowed = new Set([new URL(env.NEXT_PUBLIC_APP_URL).origin, ...(process.env.ALLOWED_ORIGINS ?? "").split(",").map((value) => value.trim()).filter(Boolean)]);
+  const app = new URL(env.NEXT_PUBLIC_APP_URL);
+  // The apex and www hosts of the app URL are the same site (e.g. getjobba.xyz and www.getjobba.xyz).
+  const twin = new URL(app.origin);
+  twin.hostname = app.hostname.startsWith("www.") ? app.hostname.slice(4) : `www.${app.hostname}`;
+  const allowed = new Set([app.origin, ...(LOCAL_HOSTS.has(app.hostname) ? [] : [twin.origin]), ...(process.env.ALLOWED_ORIGINS ?? "").split(",").map((value) => value.trim()).filter(Boolean)]);
   if (allowed.has(parsed.origin)) return true;
   const runningLocally = env.NODE_ENV !== "production" || LOCAL_HOSTS.has(new URL(env.NEXT_PUBLIC_APP_URL).hostname);
   return runningLocally && LOCAL_HOSTS.has(parsed.hostname);
