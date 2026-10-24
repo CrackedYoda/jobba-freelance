@@ -6,7 +6,7 @@ import { Logo } from "@/components/brand/logo";
 import { ConnectFlow } from "@/features/auth/connect-flow";
 import { getViewer } from "@/server/marketplace/service";
 
-export const metadata: Metadata = { title: "Sign in with Solana | Jobba" };
+export const metadata: Metadata = { title: "Sign in | Jobba" };
 
 export default async function ConnectPage() {
   const viewer = await getViewer();
@@ -17,10 +17,8 @@ export default async function ConnectPage() {
         <Logo onDark size={36} />
         <div className="connectCopy">
           <h1>Your wallet is your account.</h1>
-          <p>Connecting shows us your public key. Signing a one-time message proves you own it — no transaction, no fee, no password.</p>
         </div>
         <Image className="connectArt" src="/illustrations/wallet.svg" alt="" width={320} height={220} unoptimized />
-        <p className="connectNote">Switching wallet, account or cluster signs you out and asks for a fresh signature.</p>
       </aside>
       <main className="connectMain"><ConnectFlow initiallyAuthenticated={viewer.authenticated} /></main>
     </div>

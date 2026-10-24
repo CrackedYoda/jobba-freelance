@@ -7,9 +7,9 @@ import { OnboardingWizard } from "@/features/onboarding/onboarding-wizard";
 import { isWalletConfigured } from "@/providers/appkit-provider";
 
 const steps = [
-  ["Connect wallet", "Reown AppKit · WalletConnect"],
-  ["Sign a message", "Single-use nonce, verified server-side"],
-  ["Set up profile", "Client or freelancer role"],
+  ["Connect wallet", "Your wallet is your account"],
+  ["Confirm wallet", "Approve in your wallet"],
+  ["Set up profile", "Choose how you use Jobba"],
 ];
 
 function Rail({ current }: { current: number }) {
@@ -37,26 +37,26 @@ function Flow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
       {step === 0 ? (
         <section aria-labelledby="c0">
           <span className="eyebrow">Step 1 of 3</span>
-          <h2 id="c0">Connect a Solana wallet</h2>
-          <p className="lead">Pick Phantom, Solflare, Backpack or any WalletConnect wallet. Hiring and freelancing can share one wallet; you choose roles in the next step.</p>
-          <button className="button primary wide" type="button" onClick={auth.connect}>Choose a wallet</button>
+          <h2 id="c0">Connect your wallet</h2>
+          <p className="lead">Use one wallet to hire, freelance, or do both.</p>
+          <button className="button primary wide" type="button" onClick={auth.connect}>Connect wallet</button>
           <p className="fine">By connecting you agree to the <Link className="inlineLink" href="/terms">terms of service</Link> and <Link className="inlineLink" href="/privacy">privacy policy</Link>. New to wallets? <Link className="inlineLink" href="/help/wallets-and-sign-in">Read the guide</Link>.</p>
         </section>
       ) : null}
       {step === 1 ? (
         <section aria-labelledby="c1">
           <span className="eyebrow">Step 2 of 3</span>
-          <h2 id="c1">Sign in with Solana</h2>
-          <p className="lead">Your wallet will show an exact message. It expires in 5 minutes and can be used once.</p>
+          <h2 id="c1">Confirm your wallet</h2>
+          <p className="lead">Approve the sign-in request in your wallet to continue.</p>
           <div className="messageCard">
             <div><span className="mono">{auth.address}</span><span className="chip open mono">SOLANA</span></div>
-            <pre className="mono">{auth.message ?? "The message is created by the server when you press Sign message."}</pre>
+            <small>Connected wallet</small>
           </div>
-          {busy ? <p className="formNotice" role="status">{auth.status === "signing" ? "Waiting for your wallet… approve the request to continue." : "Working…"}</p> : null}
+          {busy ? <p className="formNotice" role="status">{auth.status === "signing" ? "Approve the request in your wallet to continue." : "Working…"}</p> : null}
           {auth.error ? <p className="formNotice error" role="alert">{auth.error}</p> : null}
           <div className="formActions row">
             <button className="button ghost" type="button" onClick={auth.connect}>Change wallet</button>
-            <button className="button primary grow" type="button" disabled={!auth.ready || busy} onClick={() => void auth.signIn()}>{busy ? "Check your wallet…" : "Sign message"}</button>
+            <button className="button primary grow" type="button" disabled={!auth.ready || busy} onClick={() => void auth.signIn()}>{busy ? "Check your wallet…" : "Continue"}</button>
           </div>
         </section>
       ) : null}
@@ -64,7 +64,7 @@ function Flow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
         <section aria-labelledby="c2">
           <span className="eyebrow">Step 3 of 3</span>
           <h2 id="c2">How will you use Jobba?</h2>
-          <p className="lead">Your progress is saved to this wallet after every step. Complete the required profile and balance check to unlock the marketplace.</p>
+          <p className="lead">Choose your role and complete your profile. Your progress is saved automatically.</p>
           <OnboardingWizard />
           <p className="fine"><button className="textButton" type="button" onClick={() => void auth.signOut()}>Sign out</button></p>
         </section>
@@ -75,7 +75,7 @@ function Flow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
 
 export function ConnectFlow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
   if (!isWalletConfigured) {
-    return <div className="connectPanel"><h2>Wallet unavailable</h2><p className="formNotice error" role="alert">Set NEXT_PUBLIC_REOWN_PROJECT_ID in .env and restart the server to enable wallet sign-in.</p></div>;
+    return <div className="connectPanel"><h2>Wallet unavailable</h2><p className="formNotice error" role="alert">Wallet sign-in is temporarily unavailable. Please try again later.</p></div>;
   }
   return <Flow initiallyAuthenticated={initiallyAuthenticated} />;
 }

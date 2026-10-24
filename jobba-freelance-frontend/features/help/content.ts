@@ -12,13 +12,13 @@ export const docs: DocPage[] = [
     slug: "getting-started",
     title: "Getting started",
     icon: "rocket",
-    summary: "Connect a wallet, sign in, and choose how you will use Jobba.",
+    summary: "Connect your wallet and choose how you will use Jobba.",
     related: ["wallets-and-sign-in", "for-clients", "for-freelancers"],
     blocks: [
-      { type: "p", text: "Jobba is a freelance marketplace where every contract is paid through a USDC escrow on Solana. Your wallet is your account: there is no password to create and no card to add." },
+      { type: "p", text: "Jobba is a decentralized freelance marketplace powered by protected USDC payments. Your wallet is your account." },
       { type: "steps", items: [
-        ["Connect a wallet", "Use Phantom, Solflare, Backpack or any WalletConnect wallet from the Connect wallet button."],
-        ["Sign in with Solana", "Approve a one-time message in your wallet. It is free and does not send a transaction."],
+        ["Connect your wallet", "Choose Connect wallet to sign in or create your account."],
+        ["Confirm your wallet", "Approve the sign-in request in your wallet to continue."],
         ["Pick your roles", "Choose hiring, freelancing, or both. You can change this from your profile at any time."],
         ["Start working", "Clients post a project; freelancers browse open projects and send proposals."],
       ] },
@@ -27,17 +27,16 @@ export const docs: DocPage[] = [
   },
   {
     slug: "wallets-and-sign-in",
-    title: "Wallets and sign-in",
+    title: "Wallet sign-in",
     icon: "wallet",
-    summary: "How Sign-In With Solana works and what Jobba can and cannot see.",
+    summary: "Use your wallet to access Jobba.",
     related: ["getting-started", "security"],
     blocks: [
-      { type: "p", text: "When you sign in, Jobba's server creates a single-use message that includes this site's domain, your public key, a random nonce and an expiry time. Your wallet signs it, and the server checks the signature against your public key." },
+      { type: "p", text: "Your wallet is your account. Connect it and approve the sign-in request to access Jobba." },
       { type: "list", items: [
-        "Signing in never moves funds and never costs a fee.",
-        "Each message can be used once and expires after five minutes.",
-        "Your session is kept in a secure, HttpOnly cookie for 24 hours.",
-        "Switching wallet or account in your wallet signs you out of Jobba.",
+        "Signing in does not move funds.",
+        "You stay in control of your wallet.",
+        "Switching wallets signs you out of Jobba.",
       ] },
       { type: "note", text: "Jobba never asks for your seed phrase or private key. Anyone who does is not Jobba." },
     ],
@@ -144,10 +143,9 @@ export const docs: DocPage[] = [
     related: ["wallets-and-sign-in", "escrow"],
     blocks: [
       { type: "list", items: [
-        "Sign-in signatures are verified on the server and cannot be replayed.",
-        "Transactions are built by the server from the stored contract terms; amounts, mints and recipients are never taken from the browser.",
-        "After you sign, the server independently fetches the transaction and checks the program, accounts, amount and result before updating the contract.",
-        "Administrator actions require a written reason and are kept in an append-only audit log.",
+        "Your wallet is your account, and Jobba never asks for your private key or recovery phrase.",
+        "Contract amounts and recipients are checked before a contract is updated.",
+        "Administrative decisions require a written reason and remain in the case history.",
       ] },
       { type: "note", text: "Always check the amount and recipient in your wallet before approving a transaction." },
     ],
@@ -161,8 +159,8 @@ export const faq: { q: string; a: string; doc: string }[] = [
   { q: "What does Jobba charge?", a: "Clients pay exactly the agreed price. A platform fee is deducted from the freelancer's payout on release, and the composer shows the exact figure before you send a proposal.", doc: "fees" },
   { q: "Can I cancel?", a: "Before funding, choose a different proposal. After funding, the client can cancel and recover the full amount until the freelancer accepts.", doc: "for-clients" },
   { q: "What happens if we disagree?", a: "Either party opens a dispute with evidence. Normal release locks, an administrator reviews the terms, chat and deliverables, and refunds the client or awards the freelancer in full.", doc: "disputes" },
-  { q: "Which wallets work?", a: "Phantom, Solflare, Backpack and any wallet that supports WalletConnect on Solana.", doc: "wallets-and-sign-in" },
-  { q: "Does signing in cost anything?", a: "No. Sign-in is a free message signature, not a transaction.", doc: "wallets-and-sign-in" },
+  { q: "Which wallets work?", a: "Choose from the available wallets shown when you select Connect wallet.", doc: "wallets-and-sign-in" },
+  { q: "Does signing in cost anything?", a: "No. Signing in does not move funds or charge a fee.", doc: "wallets-and-sign-in" },
   { q: "Can I hire and freelance with one wallet?", a: "Yes. Turn on both roles in your profile and switch between the client and freelancer workspaces.", doc: "getting-started" },
 ];
 
