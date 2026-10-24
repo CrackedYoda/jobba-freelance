@@ -1,3 +1,4 @@
+import { Usdc } from "@/components/brand/usdc";
 import type { Metadata } from "next";
 import { CircleDollarSign, FileClock, Gauge, Vault } from "lucide-react";
 import Link from "next/link";
@@ -21,13 +22,13 @@ export default async function FreelancerDashboardPage() {
         <article><span className="statLabel"><Vault size={18} aria-hidden="true" />Active contracts</span><strong>{data.activeContracts}</strong></article>
         <article><span className="statLabel"><FileClock size={18} aria-hidden="true" />Pending proposals</span><strong>{data.pendingProposals}</strong></article>
         <article><span className="statLabel"><Gauge size={18} aria-hidden="true" />Profile strength</span><strong>{data.profileStrength}%</strong></article>
-        <article><span className="statLabel"><CircleDollarSign size={18} aria-hidden="true" />Earned (released)</span><strong className="mono">{data.earnedUsdc} USDC</strong></article>
+        <article><span className="statLabel"><CircleDollarSign size={18} aria-hidden="true" />Earned (released)</span><strong className="mono">{data.earnedUsdc} <Usdc /></strong></article>
       </section>
       <section className="dashboardSection">
         <div className="sectionHeading"><div><p className="eyebrow">Contracts</p><h2>Your contracts</h2></div></div>
         {data.contracts.length ? (
           <div className="tableWrap"><table><thead><tr><th>Project</th><th>Client</th><th>Amount</th><th>Status</th></tr></thead><tbody>
-            {data.contracts.map((contract) => <tr key={contract.id}><td><Link href={`/contracts/${contract.id}`}>{contract.projectTitle}</Link></td><td>{contract.counterpart}</td><td className="mono">{contract.amountUsdc} USDC</td><td><StatusChip status={contract.status} /></td></tr>)}
+            {data.contracts.map((contract) => <tr key={contract.id}><td><Link href={`/contracts/${contract.id}`}>{contract.projectTitle}</Link></td><td>{contract.counterpart}</td><td className="mono">{contract.amountUsdc} <Usdc /></td><td><StatusChip status={contract.status} /></td></tr>)}
           </tbody></table></div>
         ) : <p className="muted">No contracts yet. When a client selects and funds your proposal it appears here.</p>}
       </section>
@@ -35,7 +36,7 @@ export default async function FreelancerDashboardPage() {
         <div className="sectionHeading"><div><p className="eyebrow">Pipeline</p><h2>Recent proposals</h2></div><Link href="/projects">Find another project →</Link></div>
         {data.proposals.length ? data.proposals.map((proposal) => (
           <article className="proposalCard detailedProposal" key={proposal.id}>
-            <div className="listingTopline"><StatusChip status={proposal.status} /><span className="mono">{proposal.amountUsdc} USDC · {proposal.deliveryDays} days</span></div>
+            <div className="listingTopline"><StatusChip status={proposal.status} /><span className="mono">{proposal.amountUsdc} <Usdc /> · {proposal.deliveryDays} days</span></div>
             <h3><Link href={`/projects/${proposal.projectId}`}>{proposal.projectTitle}</Link></h3>
             <p>{proposal.coverLetter}</p>
             {proposal.contractId ? <Link className="button lime compactButton" href={`/contracts/${proposal.contractId}`}>Open contract</Link> : null}

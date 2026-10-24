@@ -1,3 +1,4 @@
+import { Usdc } from "@/components/brand/usdc";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -32,7 +33,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <h1>{project.title}</h1>
             </div>
             <div className="factGrid">
-              <div><span>Fixed budget</span><strong className="mono">{project.budgetUsdc} USDC</strong></div>
+              <div><span>Fixed budget</span><strong className="mono">{project.budgetUsdc} <Usdc /></strong></div>
               <div><span>Delivery</span><strong>{project.deliveryDays} days</strong></div>
               <div><span>Payment</span><strong>Escrow · 1 milestone</strong></div>
             </div>
@@ -52,7 +53,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           </article>
           <aside className="detailRail">
             {isOwner ? (
-              <div className="composerBox"><h2>Your project</h2><p className="muted">{project.status === "draft" ? "This draft is only visible to you. Publish it to start receiving proposals." : "Select a proposal to create the contract and fund escrow. Funding needs one wallet signature."}</p><dl className="kv"><div><dt>Proposals</dt><dd>{project.proposals}</dd></div><div><dt>Budget</dt><dd className="mono">{project.budgetUsdc} USDC</dd></div></dl>{project.contractId ? <Link className="button primary wide" href={`/contracts/${project.contractId}`}>Open contract</Link> : null}<ProjectOwnerActions projectId={project.id} status={project.status} hasContract={Boolean(project.contractId)} /></div>
+              <div className="composerBox"><h2>Your project</h2><p className="muted">{project.status === "draft" ? "This draft is only visible to you. Publish it to start receiving proposals." : "Select a proposal to create the contract and fund escrow. Funding needs one wallet signature."}</p><dl className="kv"><div><dt>Proposals</dt><dd>{project.proposals}</dd></div><div><dt>Budget</dt><dd className="mono">{project.budgetUsdc} <Usdc /></dd></div></dl>{project.contractId ? <Link className="button primary wide" href={`/contracts/${project.contractId}`}>Open contract</Link> : null}<ProjectOwnerActions projectId={project.id} status={project.status} hasContract={Boolean(project.contractId)} /></div>
             ) : !viewer.authenticated ? (
               <div className="composerBox"><h2>Send a proposal</h2><p className="muted">Connect a wallet and sign in to propose on this project.</p><Link className="button primary wide" href="/connect">Connect wallet</Link></div>
             ) : !isFreelancer ? (

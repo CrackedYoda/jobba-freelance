@@ -1,5 +1,6 @@
 "use client";
 
+import { Usdc } from "@/components/brand/usdc";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
@@ -66,7 +67,7 @@ export function ProjectForm({ skills, categories, initial }: { skills: Skill[]; 
       </fieldset>
       <fieldset>
         <legend>Terms</legend>
-        <label><span>Fixed budget</span><div className="inputSuffix"><input className="mono" value={budget} onChange={(e) => setBudget(e.target.value)} required inputMode="decimal" placeholder="2400" disabled={initial?.locked} /><b>USDC</b></div>
+        <label><span>Fixed budget</span><div className="inputSuffix"><input className="mono" value={budget} onChange={(e) => setBudget(e.target.value)} required inputMode="decimal" placeholder="2400" disabled={initial?.locked} /><b><Usdc /></b></div>
           <small>{units ? `Stored as ${units.toString()} atomic units` : "Up to six decimal places"}</small></label>
         <label><span>Delivery target</span><div className="inputSuffix"><input value={days} onChange={(e) => setDays(e.target.value)} type="number" required min={1} max={365} /><b>days</b></div></label>
         <aside className="escrowNotice fullField"><strong>How funding works</strong><p>You pick a proposal, then fund {units ? `${fromAtomic(units)} USDC` : "the agreed amount"} into escrow with one signature. The platform fee ({(PLATFORM_FEE_BPS / 100).toFixed(2)}%{units ? `, ${fromAtomic(fee)} USDC` : ""}) is deducted from the freelancer’s payout, not added to your cost.</p></aside>

@@ -1,10 +1,9 @@
 "use client";
 
-import { hardNavigate } from "@/lib/navigation";
 import Link from "next/link";
 
 import { useWalletAuth } from "@/features/auth/use-wallet-auth";
-import { ProfileEditor } from "@/features/profiles/profile-editor";
+import { OnboardingWizard } from "@/features/onboarding/onboarding-wizard";
 import { isWalletConfigured } from "@/providers/appkit-provider";
 
 const steps = [
@@ -65,9 +64,9 @@ function Flow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
         <section aria-labelledby="c2">
           <span className="eyebrow">Step 3 of 3</span>
           <h2 id="c2">How will you use Jobba?</h2>
-          <p className="lead">You can change roles later from your profile. Saving takes you to your dashboard.</p>
-          <ProfileEditor onSaved={() => hardNavigate("/dashboard")} />
-          <p className="fine"><Link href="/dashboard">Skip for now</Link> · <button className="textButton" type="button" onClick={() => void auth.signOut()}>Sign out</button></p>
+          <p className="lead">Your progress is saved to this wallet after every step. Complete the required profile and balance check to unlock the marketplace.</p>
+          <OnboardingWizard />
+          <p className="fine"><button className="textButton" type="button" onClick={() => void auth.signOut()}>Sign out</button></p>
         </section>
       ) : null}
     </div>
@@ -76,7 +75,7 @@ function Flow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
 
 export function ConnectFlow({ initiallyAuthenticated }: { initiallyAuthenticated: boolean }) {
   if (!isWalletConfigured) {
-    return <div className="connectPanel"><h2>Wallet unavailable</h2><p className="formNotice error" role="alert">Set NEXT_PUBLIC_REOWN_PROJECT_ID in .env.local and restart the server to enable wallet sign-in.</p></div>;
+    return <div className="connectPanel"><h2>Wallet unavailable</h2><p className="formNotice error" role="alert">Set NEXT_PUBLIC_REOWN_PROJECT_ID in .env and restart the server to enable wallet sign-in.</p></div>;
   }
   return <Flow initiallyAuthenticated={initiallyAuthenticated} />;
 }

@@ -1,3 +1,4 @@
+import { Usdc } from "@/components/brand/usdc";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -30,9 +31,9 @@ export default async function FreelancerPage({ params }: { params: Promise<{ pro
             <section className="contentSection"><h2>Selected work</h2>{profile.portfolio.length ? <div className="portfolioGrid">{profile.portfolio.map((item) => <a href={item.url} target="_blank" rel="noreferrer noopener" key={item.url}><strong>{item.label}</strong><i>View project ↗</i></a>)}</div> : <p className="muted">No portfolio links yet.</p>}</section>
           </article>
           <aside className="profileStats">
-            <div><span>Hourly guide</span><strong className="mono">{profile.rateUsdc} USDC</strong></div>
+            <div><span>Hourly guide</span><strong className="mono">{profile.rateUsdc} <Usdc /></strong></div>
             <div><span>Completed contracts</span><strong>{profile.completedContracts}</strong></div>
-            <div><span>Lifetime earnings</span><strong className="mono">{profile.earnedUsdc} USDC</strong></div>
+            <div><span>Lifetime earnings</span><strong className="mono">{profile.earnedUsdc} <Usdc /></strong></div>
           </aside>
         </div>
       </main>

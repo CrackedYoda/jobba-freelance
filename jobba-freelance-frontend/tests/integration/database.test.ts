@@ -13,7 +13,8 @@ async function load() {
     projects: await import("@/server/repositories/projects"),
     proposals: await import("@/server/repositories/proposals"),
     profiles: await import("@/server/repositories/profiles"),
-    profileService: await import("@/server/services/profile"),
+    onboarding: await import("@/server/onboarding/service"),
+    balance: await import("@/server/onboarding/balance"),
     auth: await import("@/server/auth/store"),
   };
 }
@@ -103,8 +104,8 @@ describe("projects and proposals", () => {
   });
 });
 
-describe("profile persistence", () => {
-  it("updates details and atomically replaces roles, skills and portfolio", async () => {
+describe("resumable onboarding", () => {
+  it("records the wallet immediately and resumes a complete dual-role draft", async () => {
     await ctx.auth.createSession(client, 60);
     const actor = (await ctx.profiles.findActorByWallet(ctx.db, client))!;
     const skills = (await ctx.db.query<{ id: string }>("select id from skills order by id limit 2")).rows.map((row) => row.id);
@@ -118,24 +119,70 @@ describe("profile persistence", () => {
       roles: ["client", "freelancer"],
       skillIds: skills,
       portfolio: [{ title: "Recent work", url: "https://example.com/work" }],
+      yearsExperience: 6,
+      experience: [{ title: "Product builder", organization: "Jobba", startYear: 2020, endYear: null, description: "Built wallet products." }],
+      companyName: "Jordan Labs",
+      companyWebsite: "https://example.com",
+      companySize: "2-10",
+      industry: "Software & SaaS",
+      hiringNeeds: "Hiring independent specialists for product delivery.",
+      step: 3,
     } as const;
-    const first = await ctx.profileService.updateOwnProfile(actor, input as never);
-    expect(first.profile).toMatchObject({ displayName: "Jordan Client", headline: "Product builder", location: "Lagos, Nigeria" });
-    expect(first.profile.roles).toEqual(["client", "freelancer"]);
-    expect(first.profile.skills).toHaveLength(2);
+    const first = await ctx.onboarding.saveOnboarding(actor, input as never);
+    expect(first).toMatchObject({ displayName: "Jordan Client", headline: "Product builder", location: "Lagos, Nigeria", step: 3 });
+    expect(first.roles).toEqual(["client", "freelancer"]);
+    expect(first.skillIds).toHaveLength(2);
+    expect(first.experience).toHaveLength(1);
+    expect(first.companyName).toBe("Jordan Labs");
+    expect(first.walletAddress).toBe(client);
 
-    const second = await ctx.profileService.updateOwnProfile(actor, { ...input, roles: ["client"], skillIds: [skills[0]], portfolio: [] } as never);
-    expect(second.profile.roles).toEqual(["client"]);
-    expect(second.profile.skills).toHaveLength(1);
-    expect(second.profile.portfolio).toEqual([]);
+    const resumed = await ctx.onboarding.readOnboarding(actor.profileId);
+    expect(resumed).toMatchObject({ displayName: "Jordan Client", step: 3, walletAddress: client });
+    expect(resumed.roles).toEqual(["client", "freelancer"]);
   });
 
   it("rolls back the complete replacement when a skill is invalid", async () => {
     const actor = (await ctx.profiles.findActorByWallet(ctx.db, client))!;
-    await expect(ctx.profileService.updateOwnProfile(actor, {
-      displayName: "Should not persist", headline: null, location: null, bio: null, hourlyRateAtomic: null,
-      availability: "available", roles: ["freelancer"], skillIds: ["99999999-9999-4999-8999-999999999999"], portfolio: [],
+    await expect(ctx.onboarding.saveOnboarding(actor, {
+      displayName: "Should not persist", roles: ["freelancer"], skillIds: ["99999999-9999-4999-8999-999999999999"],
     } as never)).rejects.toMatchObject({ code: "INVALID_SKILL" });
     expect((await ctx.profiles.getProfileById(ctx.db, actor.profileId)).display_name).toBe("Jordan Client");
+  });
+
+  it("enforces the one-dollar SOL threshold using integer arithmetic", () => {
+    expect(ctx.balance.assessSignupBalance(5_000_000n, 20_000n, 100n)).toEqual({ usdCents: 100n, sufficient: true });
+    expect(ctx.balance.assessSignupBalance(4_999_999n, 20_000n, 100n).sufficient).toBe(false);
+  });
+
+  it("completes a client only after client details, image and a sufficient wallet check", async () => {
+    const actor = (await ctx.profiles.findActorByWallet(ctx.db, client))!;
+    await ctx.onboarding.saveOnboarding(actor, {
+      roles: ["client"], primaryRole: "client", displayName: "Jordan Client", location: "Lagos, Nigeria",
+      companyName: "Jordan Labs", companySize: "2-10", industry: "Software & SaaS",
+      hiringNeeds: "We hire specialists for product design and engineering.",
+    });
+    await ctx.db.query("insert into profile_avatars (profile_id, content_type, bytes) values ($1, 'image/png', $2) on conflict (profile_id) do nothing", [actor.profileId, Buffer.from([1])]);
+    const completed = await ctx.onboarding.completeOnboarding(actor, async () => ({
+      lamports: "5000000", sol: "0.0050", usdCents: "100", minimumUsdCents: "100", priceUsdCents: "20000", sufficient: true, cluster: "devnet",
+    }));
+    expect(completed).toMatchObject({ status: "completed", primaryRole: "client", walletAddress: client });
+  });
+
+  it("completes a freelancer only after skills, experience, image and a sufficient wallet check", async () => {
+    const actor = (await ctx.profiles.findActorByWallet(ctx.db, freelancer))!;
+    const skill = (await ctx.db.query<{ id: string }>("select id from skills order by id limit 1")).rows[0].id;
+    await ctx.onboarding.saveOnboarding(actor, {
+      roles: ["freelancer"], primaryRole: "freelancer", displayName: "Amara Freelancer", location: "Accra, Ghana",
+      headline: "Solana product designer", bio: "I design clear wallet experiences for financial products and developer platforms.",
+      hourlyRateAtomic: "65000000", yearsExperience: 6, skillIds: [skill],
+      experience: [{ title: "Senior Designer", organization: "Independent", startYear: 2020, endYear: null, description: "Designed wallet products." }],
+    });
+    await ctx.db.query("insert into profile_avatars (profile_id, content_type, bytes) values ($1, 'image/png', $2) on conflict (profile_id) do nothing", [actor.profileId, Buffer.from([1])]);
+    const completed = await ctx.onboarding.completeOnboarding(actor, async () => ({
+      lamports: "5000000", sol: "0.0050", usdCents: "100", minimumUsdCents: "100", priceUsdCents: "20000", sufficient: true, cluster: "devnet",
+    }));
+    expect(completed).toMatchObject({ status: "completed", primaryRole: "freelancer", walletAddress: freelancer });
+    expect(completed.skillIds).toEqual([skill]);
+    expect(completed.experience).toHaveLength(1);
   });
 });

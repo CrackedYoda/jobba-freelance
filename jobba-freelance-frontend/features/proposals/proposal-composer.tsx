@@ -1,5 +1,6 @@
 "use client";
 
+import { Usdc } from "@/components/brand/usdc";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
@@ -54,7 +55,7 @@ export function ProposalComposer({ projectId, budgetUsdc, defaultDays, existing 
     return (
       <div className="composerBox">
         <div className="between"><h2>Proposal sent</h2><span className={`chip ${existing.status}`}>{existing.status.toUpperCase()}</span></div>
-        <dl className="kv"><div><dt>Price</dt><dd className="mono">{existing.amountUsdc} USDC</dd></div><div><dt>Delivery</dt><dd>{existing.deliveryDays} days</dd></div></dl>
+        <dl className="kv"><div><dt>Price</dt><dd className="mono">{existing.amountUsdc} <Usdc /></dd></div><div><dt>Delivery</dt><dd>{existing.deliveryDays} days</dd></div></dl>
         <p className="quote">{existing.coverLetter}</p>
         <ol className="miniSteps"><li className="on">Client reviews proposals</li><li>If selected, client funds escrow</li><li>You accept the funded contract</li></ol>
         {existing.status === "pending" ? <button className="button dangerButton" type="button" disabled={state.busy} onClick={() => void withdraw()}>Withdraw proposal</button> : null}
@@ -72,9 +73,9 @@ export function ProposalComposer({ projectId, budgetUsdc, defaultDays, existing 
         <label><span>Delivery (days)</span><input className="mono" type="number" min={1} max={365} value={days} onChange={(e) => setDays(e.target.value)} required /></label>
       </div>
       <div className="feeBox">
-        <div><span>Client funds into escrow</span><b className="mono">{units ? fromAtomic(units) : "—"} USDC</b></div>
-        <div><span>Platform fee ({(PLATFORM_FEE_BPS / 100).toFixed(2)}%)</span><b className="mono">− {fromAtomic(fee)} USDC</b></div>
-        <div className="total"><span>You receive on release</span><b className="mono">{units ? fromAtomic(units - fee) : "—"} USDC</b></div>
+        <div><span>Client funds into escrow</span><b className="mono">{units ? fromAtomic(units) : "—"} <Usdc /></b></div>
+        <div><span>Platform fee ({(PLATFORM_FEE_BPS / 100).toFixed(2)}%)</span><b className="mono">− {fromAtomic(fee)} <Usdc /></b></div>
+        <div className="total"><span>You receive on release</span><b className="mono">{units ? fromAtomic(units - fee) : "—"} <Usdc /></b></div>
       </div>
       {over ? <p className="formNotice error">Above the client’s {budgetUsdc} USDC budget — explain why in your cover letter.</p> : null}
       <label><span>Cover letter</span><textarea rows={6} value={letter} onChange={(e) => setLetter(e.target.value)} placeholder="Explain your approach, relevant experience, and the first step you would take." required /><small className="counter">{letter.length} / 2,000</small></label>

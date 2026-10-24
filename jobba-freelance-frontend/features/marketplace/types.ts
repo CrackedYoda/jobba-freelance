@@ -76,4 +76,4 @@ export type ContractDetail = ContractSummary & {
   createdAt: string;
 };
 
-export type Viewer = { authenticated: boolean; walletAddress?: string; profileId?: string; displayName?: string; roles: string[] };
+export type Viewer = { authenticated: boolean; walletAddress?: string; profileId?: string; displayName?: string; roles: string[]; onboarded?: boolean };

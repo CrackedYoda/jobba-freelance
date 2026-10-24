@@ -1,5 +1,6 @@
 "use client";
 
+import { Usdc } from "@/components/brand/usdc";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { AdminDisputeSummary, DisputeStatus } from "./types";
@@ -47,7 +48,7 @@ export function AdminDisputeList() {
     </div>
     {message ? <p className="formNotice" role="alert">{message}</p> : null}
     <div className="tableWrap"><table><thead><tr><th>Project</th><th>Opened by</th><th>Category</th><th>Amount</th><th>Status</th><th>Opened</th></tr></thead><tbody>
-      {items.map((item) => <tr key={item.id}><td><Link href={`/admin/disputes/${item.id}`}>{item.project_title}</Link></td><td>{item.opened_by_name}</td><td>{item.category.replaceAll("_", " ")}</td><td>{Number(item.amountAtomic) / 1_000_000} USDC</td><td><span className="statusPill">{item.status.replaceAll("_", " ")}</span></td><td>{new Date(item.createdAt).toLocaleDateString()}</td></tr>)}
+      {items.map((item) => <tr key={item.id}><td><Link href={`/admin/disputes/${item.id}`}>{item.project_title}</Link></td><td>{item.opened_by_name}</td><td>{item.category.replaceAll("_", " ")}</td><td>{Number(item.amountAtomic) / 1_000_000} <Usdc /></td><td><span className="statusPill">{item.status.replaceAll("_", " ")}</span></td><td>{new Date(item.createdAt).toLocaleDateString()}</td></tr>)}
       {!busy && items.length === 0 ? <tr><td colSpan={6}>No disputes match this filter.</td></tr> : null}
     </tbody></table></div>
     {busy ? <p className="mutedCopy" role="status">Loading disputes…</p> : null}

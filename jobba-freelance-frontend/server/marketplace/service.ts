@@ -45,12 +45,12 @@ export async function getViewer(): Promise<Viewer> {
   const actor = await findActorByWallet(db, session.walletAddress);
   if (!actor) return { authenticated: false, roles: [] };
   const profile = await db.query<{ display_name: string }>("select display_name from profiles where id = $1", [actor.profileId]);
-  return { authenticated: true, walletAddress: actor.walletAddress, profileId: actor.profileId, displayName: profile.rows[0]?.display_name, roles: actor.roles };
+  return { authenticated: true, walletAddress: actor.walletAddress, profileId: actor.profileId, displayName: profile.rows[0]?.display_name, roles: actor.roles, onboarded: actor.onboarded };
 }
 
 export async function viewerActor(): Promise<Actor | undefined> {
   const viewer = await getViewer();
-  return viewer.authenticated && viewer.profileId ? { profileId: viewer.profileId, walletAddress: viewer.walletAddress!, roles: viewer.roles as Actor["roles"] } : undefined;
+  return viewer.authenticated && viewer.profileId ? { profileId: viewer.profileId, walletAddress: viewer.walletAddress!, roles: viewer.roles as Actor["roles"], onboarded: viewer.onboarded } : undefined;
 }
 
 const projectSql = `

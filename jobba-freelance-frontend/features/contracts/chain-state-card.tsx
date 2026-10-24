@@ -1,5 +1,6 @@
 "use client";
 
+import { Usdc } from "@/components/brand/usdc";
 import { useEffect, useState } from "react";
 import { StatusChip } from "@/components/marketplace/status-chip";
 import { fromAtomic } from "@/lib/domain/money";
@@ -24,7 +25,7 @@ export function ChainStateCard({ contractId }: { contractId: string }) {
   if (!state) return <section className="workspacePanel" aria-labelledby="chain-state-heading"><h2 id="chain-state-heading">Escrow state</h2><p>Checking confirmed chain state…</p></section>;
   return <section className="workspacePanel" aria-labelledby="chain-state-heading">
     <h2 id="chain-state-heading">Escrow state</h2>
-    <dl><dt>Database status</dt><dd><StatusChip status={state.contractStatus} /></dd><dt>On-chain status</dt><dd>{state.escrow ? <StatusChip status={state.escrow.state.toLowerCase()} /> : "Not funded"}</dd><dt>Gross amount</dt><dd className="mono">{fromAtomic(BigInt(state.amountAtomic))} USDC</dd></dl>
+    <dl><dt>Database status</dt><dd><StatusChip status={state.contractStatus} /></dd><dt>On-chain status</dt><dd>{state.escrow ? <StatusChip status={state.escrow.state.toLowerCase()} /> : "Not funded"}</dd><dt>Gross amount</dt><dd className="mono">{fromAtomic(BigInt(state.amountAtomic))} <Usdc /></dd></dl>
     <p><a href={explorerAccountUrl(state.escrowAddress, state.cluster)} target="_blank" rel="noreferrer">View escrow account</a></p>
     {state.actions.length ? <ul>{state.actions.map((action) => <li key={action.id}>{action.kind}: {action.status}{action.signature ? <> · <a href={explorerTransactionUrl(action.signature, action.cluster)} target="_blank" rel="noreferrer">transaction</a></> : null}</li>)}</ul> : <p>No chain actions yet.</p>}
   </section>;

@@ -10,7 +10,7 @@ export const metadata: Metadata = { title: "Sign in with Solana | Jobba" };
 
 export default async function ConnectPage() {
   const viewer = await getViewer();
-  if (viewer.authenticated && viewer.roles.length > 0) redirect("/dashboard");
+  if (viewer.authenticated && viewer.onboarded) redirect("/dashboard");
   return (
     <div className="connectPage">
       <aside className="connectRail">

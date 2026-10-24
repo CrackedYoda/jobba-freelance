@@ -1,5 +1,6 @@
 "use client";
 
+import { Usdc } from "@/components/brand/usdc";
 import { BadgeCheck, CircleDollarSign, Handshake, Lock, PenSquare, Scale, Send, ShieldCheck, UserRound, Wallet, type LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -48,7 +49,7 @@ export function LandingHero() {
         <div className="demoHead mono"><span><Lock size={12} aria-hidden="true" /> ESCROW · SOLANA</span><span>Program-owned vault</span></div>
         <div className="escrowDemo">
           <div className="demoTitle"><div><small>Example contract</small><strong>Website redesign, fixed price</strong></div><span className={`chip ${s.chip}`}><i />{s.label}</span></div>
-          <p className="amount">2,350.00 <small>USDC</small></p>
+          <p className="amount">2,350.00 <small><Usdc size={22} /></small></p>
           <div className="meter"><i style={{ width: `${s.bar}%` }} /></div>
           <p className="demoText">{s.text}</p>
           <div className="cardMeta"><span><UserRound size={13} aria-hidden="true" /> Client</span><span><UserRound size={13} aria-hidden="true" /> Freelancer</span></div>

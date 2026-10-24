@@ -1,3 +1,4 @@
+import { Usdc } from "@/components/brand/usdc";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -55,9 +56,9 @@ export default async function ContractWorkspace({ params }: { params: Promise<{ 
             <section className="workspacePanel" aria-labelledby="terms-heading">
               <span className="eyebrow">Terms</span><h2 id="terms-heading">What was agreed</h2>
               <dl className="termsList">
-                <div><dt>Fixed price</dt><dd className="mono">{fromAtomic(gross)} USDC</dd></div>
-                <div><dt>Platform fee{recorded > 0n ? "" : " (estimate)"}, deducted from payout</dt><dd className="mono">{fromAtomic(fee)} USDC</dd></div>
-                <div><dt>Freelancer receives on release</dt><dd className="mono">{fromAtomic(gross - fee)} USDC</dd></div>
+                <div><dt>Fixed price</dt><dd className="mono">{fromAtomic(gross)} <Usdc /></dd></div>
+                <div><dt>Platform fee{recorded > 0n ? "" : " (estimate)"}, deducted from payout</dt><dd className="mono">{fromAtomic(fee)} <Usdc /></dd></div>
+                <div><dt>Freelancer receives on release</dt><dd className="mono">{fromAtomic(gross - fee)} <Usdc /></dd></div>
                 <div><dt>Delivery target</dt><dd>{contract.deliveryDays} days</dd></div>
                 <div><dt>Terms hash</dt><dd className="mono wrap">{contract.termsHash}</dd></div>
               </dl>

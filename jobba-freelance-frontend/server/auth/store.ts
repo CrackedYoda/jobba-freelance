@@ -79,8 +79,8 @@ export async function consumeChallenge(nonce: string, address: string, now = Dat
 
 async function findOrCreateProfile(db: Database, walletAddress: string): Promise<string> {
   const { rows } = await db.query<{ id: string }>(
-    `insert into profiles (wallet_public_key, display_name) values ($1, $2)
-     on conflict (wallet_public_key) do update set wallet_public_key = excluded.wallet_public_key
+    `insert into profiles (wallet_public_key, display_name, wallet_verified_at) values ($1, $2, now())
+     on conflict (wallet_public_key) do update set wallet_verified_at = now()
      returning id`,
     [walletAddress, `Wallet ${walletAddress.slice(0, 4)}…${walletAddress.slice(-4)}`],
   );

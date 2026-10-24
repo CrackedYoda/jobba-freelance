@@ -1,5 +1,6 @@
 "use client";
 
+import { Usdc } from "@/components/brand/usdc";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -47,7 +48,7 @@ export function ProposalList({ proposals, canSelect }: { proposals: ProposalSumm
           <p>{proposal.coverLetter}</p>
           {proposal.portfolioUrl ? <a className="verifiedMark" href={proposal.portfolioUrl} target="_blank" rel="noreferrer noopener">Portfolio ↗</a> : null}
           <footer>
-            <span><b className="mono">{proposal.amountUsdc} USDC</b> · {proposal.deliveryDays} days</span>
+            <span><b className="mono">{proposal.amountUsdc} <Usdc /></b> · {proposal.deliveryDays} days</span>
             {proposal.contractId ? <Link className="button ghost compactButton" href={`/contracts/${proposal.contractId}`}>Open contract</Link>
               : canSelect && proposal.status === "pending" ? (
                 <span className="pillRow">

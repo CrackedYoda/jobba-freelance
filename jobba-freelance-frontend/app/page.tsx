@@ -1,8 +1,8 @@
+import { Usdc } from "@/components/brand/usdc";
 import Image from "next/image";
 import { ArrowRight, Coins, ExternalLink, KeyRound, Lock, Vault } from "lucide-react";
 import Link from "next/link";
 
-import { NamedIcon } from "@/components/brand/icons";
 import { Logo } from "@/components/brand/logo";
 import { ProjectCard } from "@/components/marketplace/project-card";
 import { SiteFooter } from "@/components/marketplace/site-footer";
@@ -12,15 +12,6 @@ import { HowItWorks, LandingHero } from "@/features/landing/hero";
 import { hasDatabase } from "@/server/db/client";
 import { listProjects } from "@/server/marketplace/service";
 
-const categories = [
-  ["Development", "Smart contracts, web apps, indexers"],
-  ["Design & Creative", "Product, brand, motion"],
-  ["Writing", "Docs, launch copy, research"],
-  ["Marketing", "Growth, community, ops"],
-  ["Data & AI", "Analytics, notebooks, models"],
-  ["Video & animation", "Explainers and edits"],
-];
-
 export default async function Home() {
   const featured = hasDatabase() ? (await listProjects({})).slice(0, 3) : [];
   return (
@@ -29,7 +20,7 @@ export default async function Home() {
       <LandingHero />
       <section className="trustStrip" aria-label="Platform facts">
         <div>
-          <span><Coins size={18} aria-hidden="true" /><strong>USDC</strong> settlement, SOL for network fees</span>
+          <span><Coins size={18} aria-hidden="true" /><strong><Usdc /></strong> settlement, SOL for network fees</span>
           <span><KeyRound size={18} aria-hidden="true" /><strong>Sign-In With Solana</strong> — no passwords</span>
           <span><Vault size={18} aria-hidden="true" /><strong>One vault</strong> per contract</span>
           <span><ExternalLink size={18} aria-hidden="true" /><strong>Explorer links</strong> on every transaction</span>
@@ -42,7 +33,7 @@ export default async function Home() {
             <div><span className="eyebrow" style={{ color: "var(--lime)" }}>The escrow lifecycle</span><h2>Every state is on-chain. Every move needs the right signer.</h2></div>
             <p style={{ maxWidth: 400 }}>The program checks the actor, state, amount, mint and terms hash on every instruction. Release is locked the moment a dispute opens.</p>
           </div>
-          <Image className="flowArt" src="/illustrations/escrow-flow.svg" alt="USDC moves from the client into the escrow vault, then to the freelancer on release." width={560} height={200} unoptimized />
+          <Image className="flowArt" src="/illustrations/escrow-flow.svg" alt="USDC moves from the client into the escrow vault, then to the freelancer on release." width={640} height={200} unoptimized />
           <div className="lifecycle" aria-label="Happy path"><span>Funded</span><ArrowRight size={16} aria-hidden="true" /><span>Active</span><ArrowRight size={16} aria-hidden="true" /><span>Submitted</span><ArrowRight size={16} aria-hidden="true" /><span className="last">Released</span></div>
           <div className="branchGrid">
             <div><small>FUNDED → CANCELLED</small><strong>Changed your mind before work starts?</strong><p>The client can cancel and recover the full amount while the escrow is still Funded and the freelancer has not accepted.</p></div>
@@ -50,12 +41,6 @@ export default async function Home() {
             <div><small>DISPUTED → REFUNDED | AWARDED</small><strong>A recorded, signed decision</strong><p>The admin refunds the client or awards the freelancer in full, with a written reason and an Explorer link in the case history.</p></div>
           </div>
           <Link className="button lime" href="/help/escrow" style={{ justifySelf: "start" }}><Lock size={16} aria-hidden="true" />Read how escrow works</Link>
-        </div>
-      </section>
-      <section className="shell" style={{ paddingBlock: "56px 24px" }}>
-        <div className="splitIntro"><div><span className="eyebrow">Browse by category</span><h2>Work that ships.</h2></div><Link className="button ghost" href="/projects">All projects</Link></div>
-        <div className="catGrid">
-          {categories.map(([name, blurb]) => <Link className="catCard" key={name} href={`/projects?category=${encodeURIComponent(name)}`}><span className="iconTile"><NamedIcon name={name} /></span><strong>{name}</strong><span>{blurb}</span></Link>)}
         </div>
       </section>
       {featured.length ? (

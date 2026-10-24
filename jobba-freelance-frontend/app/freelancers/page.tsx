@@ -1,3 +1,4 @@
+import { Usdc } from "@/components/brand/usdc";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,7 +30,7 @@ export default async function FreelancersPage({ searchParams }: { searchParams: 
               <Avatar name={person.name} url={person.avatarUrl} size="small" />
               <strong>{person.name}</strong><span className="muted">{person.headline || "Freelancer"}</span>
               <div className="tagRow">{person.skills.slice(0, 4).map((skill) => <span key={skill}>{skill}</span>)}</div>
-              <footer><span className="mono">{person.rateUsdc} USDC/hr</span><span className="muted">{person.completedContracts} completed</span></footer>
+              <footer><span className="mono">{person.rateUsdc} <Usdc />/hr</span><span className="muted">{person.completedContracts} completed</span></footer>
             </Link>
           ))}
         </div>

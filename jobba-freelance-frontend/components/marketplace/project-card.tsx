@@ -1,3 +1,4 @@
+import { Usdc } from "@/components/brand/usdc";
 import { CalendarClock, MessageSquareText, ShieldCheck } from "lucide-react";
 import Link from "next/link";
 
@@ -11,7 +12,7 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
       <p>{project.summary}</p>
       <div className="tagRow" aria-label="Required skills">{project.skills.map((skill) => <span key={skill}>{skill}</span>)}</div>
       <div className="listingFooter">
-        <div className="listingMoney"><strong className="display">{project.budgetUsdc} <small>USDC</small></strong><span className="iconText"><CalendarClock size={14} aria-hidden="true" />{project.deliveryDays}-day delivery</span></div>
+        <div className="listingMoney"><strong className="display">{project.budgetUsdc} <small><Usdc /></small></strong><span className="iconText"><CalendarClock size={14} aria-hidden="true" />{project.deliveryDays}-day delivery</span></div>
         <span className="verifiedMark iconText"><ShieldCheck size={14} aria-hidden="true" />{project.client.name} · {project.client.projectsFunded} funded</span>
       </div>
     </article>

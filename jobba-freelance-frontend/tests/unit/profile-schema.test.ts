@@ -1,30 +1,46 @@
 import { describe, expect, it } from "vitest";
 
-import { updateProfileSchema } from "@/features/profiles/schemas";
+import { missingRequirements, saveOnboardingSchema } from "@/features/profiles/schemas";
 
-const valid = {
-  displayName: "Amara Okafor",
-  headline: "Product designer",
-  location: "Lagos, Nigeria",
-  bio: "I design clear tools for complex financial workflows.",
-  hourlyRateAtomic: "65000000",
-  availability: "available",
-  roles: ["freelancer"],
-  skillIds: ["10000000-0000-4000-8000-000000000005"],
-  portfolio: [{ title: "Payments case study", url: "https://example.com/work" }],
+const freelancerDraft = {
+  roles: ["freelancer"], displayName: "Amara Okafor", headline: "Product designer", location: "Lagos, NG",
+  bio: "I design clear tools for complex financial workflows and payments teams.", hourlyRateAtomic: "65000000",
+  skillIds: ["10000000-0000-4000-8000-000000000005"], experience: [{}], yearsExperience: 6, hasAvatar: true,
+  companyName: null, industry: null, companySize: null, hiringNeeds: null,
 };
 
-describe("profile update schema", () => {
-  it("accepts roles, bigint-safe rates, skills and portfolio links", () => {
-    expect(updateProfileSchema.parse(valid)).toMatchObject({ roles: ["freelancer"], hourlyRateAtomic: "65000000" });
+describe("onboarding schema", () => {
+  it("accepts partial saves so sign-up can resume", () => {
+    expect(saveOnboardingSchema.parse({ step: 2, displayName: "Amara" })).toMatchObject({ step: 2, displayName: "Amara" });
   });
 
-  it("rejects admin role assignment and unsafe URLs", () => {
-    expect(() => updateProfileSchema.parse({ ...valid, roles: ["admin"] })).toThrow();
-    expect(() => updateProfileSchema.parse({ ...valid, portfolio: [{ title: "bad", url: "javascript:alert(1)" }] })).toThrow();
+  it("rejects admin role assignment, unsafe URLs and inverted experience years", () => {
+    expect(() => saveOnboardingSchema.parse({ roles: ["admin"] })).toThrow();
+    expect(() => saveOnboardingSchema.parse({ portfolio: [{ title: "bad", url: "javascript:alert(1)" }] })).toThrow();
+    expect(() => saveOnboardingSchema.parse({ experience: [{ title: "Designer", organization: "Acme", startYear: 2022, endYear: 2020 }] })).toThrow();
   });
 
-  it("requires at least one marketplace role", () => {
-    expect(() => updateProfileSchema.parse({ ...valid, roles: [] })).toThrow();
+  it("treats an empty company website as cleared", () => {
+    expect(saveOnboardingSchema.parse({ companyWebsite: "" }).companyWebsite).toBeNull();
+  });
+});
+
+describe("sign-up completeness", () => {
+  it("passes a complete freelancer", () => {
+    expect(missingRequirements(freelancerDraft)).toEqual([]);
+  });
+
+  it("requires photo, skills and experience for freelancers", () => {
+    const fields = missingRequirements({ ...freelancerDraft, hasAvatar: false, skillIds: [], experience: [] }).map((item) => item.field);
+    expect(fields).toEqual(expect.arrayContaining(["avatar", "skillIds", "experience"]));
+  });
+
+  it("requires company details for clients", () => {
+    const fields = missingRequirements({ ...freelancerDraft, roles: ["client"] }).map((item) => item.field);
+    expect(fields).toEqual(expect.arrayContaining(["companyName", "industry", "companySize", "hiringNeeds"]));
+  });
+
+  it("does not accept the placeholder wallet name", () => {
+    expect(missingRequirements({ ...freelancerDraft, displayName: "Wallet 7xKX…gAsU" }).map((item) => item.field)).toContain("displayName");
   });
 });

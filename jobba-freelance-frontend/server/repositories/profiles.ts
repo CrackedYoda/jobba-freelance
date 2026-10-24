@@ -3,18 +3,18 @@ import "server-only";
 import type { Database } from "@/server/db/client";
 
 export type AppRole = "client" | "freelancer" | "admin";
-export type Actor = { profileId: string; walletAddress: string; roles: AppRole[] };
+export type Actor = { profileId: string; walletAddress: string; roles: AppRole[]; onboarded?: boolean };
 
 export async function findActorByWallet(db: Database, walletAddress: string): Promise<Actor | undefined> {
-  const { rows } = await db.query<{ id: string; wallet_public_key: string; roles: AppRole[] }>(
-    `select p.id, p.wallet_public_key,
+  const { rows } = await db.query<{ id: string; wallet_public_key: string; roles: AppRole[]; onboarding_status: string }>(
+    `select p.id, p.wallet_public_key, p.onboarding_status,
             coalesce(array_agg(r.role::text) filter (where r.role is not null), '{}') as roles
        from profiles p left join profile_roles r on r.profile_id = p.id
       where p.wallet_public_key = $1 group by p.id`,
     [walletAddress],
   );
   const row = rows[0];
-  return row ? { profileId: row.id, walletAddress: row.wallet_public_key, roles: row.roles } : undefined;
+  return row ? { profileId: row.id, walletAddress: row.wallet_public_key, roles: row.roles, onboarded: row.onboarding_status === "completed" } : undefined;
 }
 
 export async function getProfileById(db: Database, profileId: string) {
